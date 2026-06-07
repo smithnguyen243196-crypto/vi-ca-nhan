@@ -303,37 +303,28 @@ async function loadFromNotion() {
   showSkeleton();
 
   try {
-    let allTxns = [];
-    let cursor = null;
-    let hasMore = true;
-
-    while(hasMore) {
-      const body = { token: cfg.token, dbId: cfg.dbId };
-      if(cursor) body.cursor = cursor;
-
-      const res = await fetch('/api/notion-read', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
-      const data = await res.json();
-      if(!res.ok) throw new Error(data.error || 'Lỗi tải dữ liệu');
-
-      allTxns = allTxns.concat(data.txns || []);
-      hasMore = data.hasMore;
-      cursor = data.nextCursor;
+    const res = await fetch('/api/notion-read', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: cfg.token, dbId: cfg.dbId }),
+    });
+    if(!res.ok) {
+      const err = await res.text();
+      throw new Error('Lỗi server');
     }
-
-    txns = allTxns;
+    const data = await res.json();
+    if(data.error) throw new Error(data.error);
+    txns = data.txns || [];
     setSyncDot('ok');
     render();
-    showToast('✅ Đã tải '+txns.length+' giao dịch từ Notion');
+    showToast('✅ Đã tải '+txns.length+' giao dịch');
   } catch(e) {
     setSyncDot('err');
     render();
     showToast('❌ '+e.message);
   }
   isLoading = false;
+}
 }
 
 // ── render ──
