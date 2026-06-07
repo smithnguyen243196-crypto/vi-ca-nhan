@@ -6,655 +6,637 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Ví Cá Nhân</title>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg:#080b12; --surface:#0f1520; --surface2:#161e2e; --border:#1e2d45;
-    --text:#e8f0fe; --muted:#4a6080;
-    --green:#00e5a0; --green-dim:rgba(0,229,160,0.12);
-    --red:#ff4d6d;   --red-dim:rgba(255,77,109,0.12);
-    --blue:#4d9fff;  --gold:#fbbf24;
-    --purple:#a78bfa; --purple-dim:rgba(167,139,250,0.12);
-  }
-  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-  html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Sora',sans-serif;overflow-x:hidden;}
-  ::-webkit-scrollbar{width:4px;} ::-webkit-scrollbar-track{background:transparent;} ::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
-  #app{max-width:430px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;}
+:root {
+  --bg:#080b12; --surface:#0f1520; --surface2:#161e2e; --border:#1e2d45;
+  --text:#e8f0fe; --muted:#4a6080;
+  --green:#00e5a0; --green-dim:rgba(0,229,160,0.12);
+  --red:#ff4d6d;   --red-dim:rgba(255,77,109,0.12);
+  --blue:#4d9fff;  --gold:#fbbf24;
+  --purple:#a78bfa; --purple-dim:rgba(167,139,250,0.12);
+}
+* { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+html,body { height:100%; background:var(--bg); color:var(--text); font-family:'Sora',sans-serif; overflow-x:hidden; }
+::-webkit-scrollbar{width:4px} ::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 
-  /* header */
-  .header{padding:52px 20px 12px;background:linear-gradient(180deg,#0a1628 0%,transparent 100%);position:sticky;top:0;z-index:10;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);}
-  .header-row{display:flex;justify-content:space-between;align-items:center;}
-  .app-name{font-size:13px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--muted);}
-  .header-right{display:flex;gap:8px;align-items:center;}
-  .icon-btn{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:8px 12px;color:var(--muted);font-size:16px;cursor:pointer;}
-  .sync-indicator{width:8px;height:8px;border-radius:50%;background:var(--muted);display:inline-block;margin-right:4px;}
-  .sync-indicator.ok{background:var(--green);}
-  .sync-indicator.loading{background:var(--gold);animation:pulse 1s infinite;}
-  .sync-indicator.err{background:var(--red);}
+/* app wrapper */
+#app { max-width:430px; margin:0 auto; min-height:100vh; }
 
-  /* balance */
-  .balance-card{margin:0 16px 16px;background:linear-gradient(135deg,#0d1f35 0%,#0a1628 100%);border:1px solid var(--border);border-radius:20px;padding:20px;position:relative;overflow:hidden;}
-  .balance-card::before{content:'';position:absolute;top:-60px;right:-60px;width:180px;height:180px;background:radial-gradient(circle,rgba(0,229,160,0.06) 0%,transparent 70%);pointer-events:none;}
-  .balance-label{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
-  .balance-amount{font-size:32px;font-weight:800;letter-spacing:-1px;font-family:'JetBrains Mono',monospace;}
-  .balance-amount.positive{color:var(--green);} .balance-amount.negative{color:var(--red);}
-  .balance-month{font-size:12px;color:var(--muted);margin-top:4px;}
-  .balance-row{display:flex;gap:10px;margin-top:14px;}
-  .mini-stat{flex:1;background:var(--surface2);border-radius:12px;padding:10px;}
-  .mini-label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:3px;}
-  .mini-val{font-size:14px;font-weight:700;font-family:'JetBrains Mono',monospace;}
-  .mini-val.inc{color:var(--green);} .mini-val.exp{color:var(--red);}
+/* header */
+.hdr { padding:48px 20px 12px; background:linear-gradient(180deg,#0a1628,transparent); position:sticky; top:0; z-index:10; backdrop-filter:blur(20px); }
+.hdr-row { display:flex; justify-content:space-between; align-items:center; }
+.hdr-name { font-size:12px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:var(--muted); }
+.hdr-right { display:flex; gap:8px; align-items:center; }
+.icon-btn { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:8px 12px; color:var(--muted); font-size:15px; cursor:pointer; font-family:'Sora',sans-serif; }
 
-  /* month + tabs */
-  .month-picker{display:flex;align-items:center;gap:10px;padding:0 16px 12px;}
-  .month-picker label{font-size:12px;color:var(--muted);}
-  .month-picker input{background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:6px 10px;font-size:13px;font-family:'Sora',sans-serif;flex:1;}
-  .tabs{display:flex;margin:0 16px 14px;background:var(--surface);border-radius:12px;padding:4px;gap:4px;}
-  .tab{flex:1;padding:8px 2px;background:transparent;border:none;border-radius:8px;color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;font-family:'Sora',sans-serif;transition:all 0.2s;}
-  .tab.active{background:var(--surface2);color:var(--text);}
+/* sync dot */
+.dot { width:8px; height:8px; border-radius:50%; background:var(--muted); display:inline-block; }
+.dot.ok { background:var(--green); }
+.dot.loading { background:var(--gold); animation:blink 1s infinite; }
+.dot.err { background:var(--red); }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-  /* section */
-  .section{padding:0 16px;flex:1;overflow-y:auto;padding-bottom:110px;}
+/* balance */
+.bal-card { margin:0 16px 16px; background:linear-gradient(135deg,#0d1f35,#0a1628); border:1px solid var(--border); border-radius:20px; padding:20px; }
+.bal-lbl { font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:6px; }
+.bal-amt { font-size:32px; font-weight:800; letter-spacing:-1px; font-family:'JetBrains Mono',monospace; color:var(--text); }
+.bal-amt.pos { color:var(--green); } .bal-amt.neg { color:var(--red); }
+.bal-month { font-size:12px; color:var(--muted); margin-top:4px; }
+.bal-row { display:flex; gap:10px; margin-top:14px; }
+.mini { flex:1; background:var(--surface2); border-radius:12px; padding:10px; }
+.mini-lbl { font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); margin-bottom:3px; }
+.mini-val { font-size:14px; font-weight:700; font-family:'JetBrains Mono',monospace; }
+.mini-val.inc { color:var(--green); } .mini-val.exp { color:var(--red); }
 
-  /* loading skeleton */
-  .skeleton{background:var(--surface);border-radius:14px;margin-bottom:8px;padding:14px;animation:shimmer 1.5s infinite;}
-  @keyframes shimmer{0%,100%{opacity:0.4}50%{opacity:0.8}}
-  .skel-line{height:12px;background:var(--border);border-radius:6px;margin-bottom:8px;}
-  .skel-line.short{width:40%;}
+/* month picker */
+.mpick { display:flex; align-items:center; gap:10px; padding:0 16px 12px; }
+.mpick label { font-size:12px; color:var(--muted); flex-shrink:0; }
+.mpick input { flex:1; background:var(--surface); border:1px solid var(--border); border-radius:8px; color:var(--text); padding:7px 10px; font-size:13px; font-family:'Sora',sans-serif; }
 
-  /* txn */
-  .txn-group-label{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin:14px 0 8px;}
-  .txn-item{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px;margin-bottom:8px;animation:slideIn 0.3s ease;}
-  @keyframes slideIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
-  .txn-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
-  .txn-icon.inc{background:var(--green-dim);} .txn-icon.exp{background:var(--red-dim);}
-  .txn-info{flex:1;min-width:0;}
-  .txn-cat{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .txn-meta{font-size:11px;color:var(--muted);margin-top:3px;display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
-  .notion-badge{background:rgba(77,159,255,0.15);color:var(--blue);border-radius:4px;padding:1px 5px;font-size:10px;font-weight:600;}
-  .syncing-badge{background:rgba(251,191,36,0.15);color:var(--gold);border-radius:4px;padding:1px 5px;font-size:10px;font-weight:600;animation:pulse 1s infinite;}
-  @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
-  .wallet-badge{border-radius:4px;padding:1px 5px;font-size:10px;font-weight:600;}
-  .wallet-bank{background:var(--purple-dim);color:var(--purple);}
-  .wallet-cash{background:rgba(251,191,36,0.12);color:var(--gold);}
-  .txn-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;}
-  .txn-amt{font-size:14px;font-weight:700;font-family:'JetBrains Mono',monospace;}
-  .txn-amt.inc{color:var(--green);} .txn-amt.exp{color:var(--red);}
-  .del-btn{background:transparent;border:none;color:var(--border);font-size:16px;cursor:pointer;padding:2px;line-height:1;}
-  .del-btn:hover{color:var(--red);}
-  .empty{text-align:center;padding:60px 20px;color:var(--muted);font-size:14px;line-height:1.8;}
+/* tabs */
+.tabs { display:flex; margin:0 16px 14px; background:var(--surface); border-radius:12px; padding:4px; gap:4px; }
+.tab { flex:1; padding:8px 2px; background:transparent; border:none; border-radius:8px; color:var(--muted); font-size:11px; font-weight:600; cursor:pointer; font-family:'Sora',sans-serif; transition:all 0.2s; }
+.tab.active { background:var(--surface2); color:var(--text); }
 
-  /* stats */
-  .cat-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:10px;}
-  .cat-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:12px;}
-  .cat-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
-  .cat-name{font-size:12px;width:120px;flex-shrink:0;}
-  .bar-wrap{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden;}
-  .bar-fill{height:100%;border-radius:3px;transition:width 0.6s cubic-bezier(0.34,1.56,0.64,1);}
-  .cat-val{font-size:11px;font-weight:600;font-family:'JetBrains Mono',monospace;width:80px;text-align:right;flex-shrink:0;}
-  .wallet-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:10px;}
-  .wallet-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);}
-  .wallet-row:last-child{border-bottom:none;padding-bottom:0;}
-  .wallet-name{font-size:13px;font-weight:600;}
-  .wallet-amt{font-size:14px;font-weight:700;font-family:'JetBrains Mono',monospace;}
+/* sections */
+.sec { padding:0 16px 110px; display:none; }
+.sec.show { display:block; }
 
-  /* settings */
-  .settings-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:14px;}
-  .settings-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;}
-  .settings-desc{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:14px;}
-  .input-label{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
-  .input-field{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:10px;color:var(--text);padding:11px 14px;font-size:13px;font-family:'Sora',sans-serif;margin-bottom:12px;transition:border-color 0.2s;}
-  .input-field:focus{outline:none;border-color:var(--blue);}
-  .input-field::placeholder{color:var(--muted);}
-  .save-cfg-btn{width:100%;background:var(--blue);border:none;border-radius:10px;padding:12px;color:#fff;font-weight:700;font-size:14px;font-family:'Sora',sans-serif;cursor:pointer;}
-  .status-ok{background:var(--green-dim);color:var(--green);border-radius:10px;padding:10px 14px;margin-top:10px;font-size:13px;}
-  .status-warn{background:rgba(251,191,36,0.12);color:var(--gold);border-radius:10px;padding:10px 14px;margin-top:10px;font-size:13px;}
-  .guide-steps{list-style:none;}
-  .guide-steps li{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;line-height:1.6;color:var(--muted);}
-  .guide-steps li:last-child{border-bottom:none;}
-  .step-num{width:22px;height:22px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--blue);flex-shrink:0;margin-top:1px;}
-  code{background:var(--surface2);border-radius:4px;padding:1px 6px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--blue);word-break:break-all;}
+/* skeleton */
+.skel { background:var(--surface); border-radius:14px; margin-bottom:8px; padding:14px; }
+.skel-line { height:11px; background:var(--border); border-radius:6px; margin-bottom:8px; animation:blink 1.5s infinite; }
+.skel-line.s { width:40%; }
 
-  /* bottom nav */
-  .bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#0a1220;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-around;padding:10px 16px 24px;z-index:20;}
-  .nav-btn{display:flex;flex-direction:column;align-items:center;gap:4px;background:transparent;border:none;color:var(--muted);font-size:10px;font-weight:600;font-family:'Sora',sans-serif;cursor:pointer;padding:6px 16px;border-radius:10px;transition:all 0.2s;}
-  .nav-btn .nav-icon{font-size:20px;}
-  .nav-btn.active{color:var(--green);}
-  .nav-btn.home-btn{background:linear-gradient(135deg,var(--green),#00b87a);color:#000;border-radius:16px;padding:10px 20px;box-shadow:0 4px 20px rgba(0,229,160,0.3);}
+/* txn list */
+.grp-lbl { font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin:14px 0 8px; }
+.txn { display:flex; align-items:center; gap:12px; background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:12px; margin-bottom:8px; animation:up 0.25s ease; }
+@keyframes up { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+.txn-ico { width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:17px; flex-shrink:0; }
+.txn-ico.inc { background:var(--green-dim); } .txn-ico.exp { background:var(--red-dim); }
+.txn-body { flex:1; min-width:0; }
+.txn-cat { font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.txn-meta { font-size:11px; color:var(--muted); margin-top:3px; display:flex; align-items:center; gap:5px; flex-wrap:wrap; }
+.badge { border-radius:4px; padding:1px 5px; font-size:10px; font-weight:600; }
+.badge-notion { background:rgba(77,159,255,0.15); color:var(--blue); }
+.badge-sync { background:rgba(251,191,36,0.15); color:var(--gold); animation:blink 1s infinite; }
+.badge-bank { background:var(--purple-dim); color:var(--purple); }
+.badge-cash { background:rgba(251,191,36,0.12); color:var(--gold); }
+.txn-right { display:flex; flex-direction:column; align-items:flex-end; gap:5px; flex-shrink:0; }
+.txn-amt { font-size:14px; font-weight:700; font-family:'JetBrains Mono',monospace; }
+.txn-amt.inc { color:var(--green); } .txn-amt.exp { color:var(--red); }
+.del-btn { background:transparent; border:none; color:var(--border); font-size:18px; cursor:pointer; line-height:1; padding:0 2px; }
+.del-btn:hover { color:var(--red); }
+.empty { text-align:center; padding:60px 20px; color:var(--muted); font-size:14px; line-height:2; }
 
-  /* sheet */
-  .overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:30;backdrop-filter:blur(6px);display:none;}
-  .overlay.open{display:block;}
-  .sheet{position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(100%);width:100%;max-width:430px;background:var(--surface);border-radius:24px 24px 0 0;padding:0 20px 40px;z-index:31;transition:transform 0.35s cubic-bezier(0.34,1.2,0.64,1);max-height:92vh;overflow-y:auto;}
-  .sheet.open{transform:translateX(-50%) translateY(0);}
-  .sheet-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:14px auto 0;}
-  .sheet-header{display:flex;justify-content:space-between;align-items:center;padding:16px 0 18px;}
-  .sheet-title{font-size:18px;font-weight:800;}
-  .sheet-close{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:8px 16px;color:var(--muted);font-size:13px;font-weight:600;font-family:'Sora',sans-serif;cursor:pointer;}
-  .type-toggle{display:flex;gap:8px;margin-bottom:14px;}
-  .type-btn{flex:1;padding:10px;border:1px solid var(--border);border-radius:12px;background:var(--surface2);color:var(--muted);font-weight:700;font-size:13px;font-family:'Sora',sans-serif;cursor:pointer;transition:all 0.2s;}
-  .type-btn.inc.active{background:var(--green-dim);border-color:var(--green);color:var(--green);}
-  .type-btn.exp.active{background:var(--red-dim);border-color:var(--red);color:var(--red);}
-  .wallet-toggle{display:flex;gap:8px;margin-bottom:14px;}
-  .wallet-btn{flex:1;padding:10px;border:1px solid var(--border);border-radius:12px;background:var(--surface2);color:var(--muted);font-weight:600;font-size:13px;font-family:'Sora',sans-serif;cursor:pointer;transition:all 0.2s;}
-  .wallet-btn.active-bank{background:var(--purple-dim);border-color:var(--purple);color:var(--purple);}
-  .wallet-btn.active-cash{background:rgba(251,191,36,0.12);border-color:var(--gold);color:var(--gold);}
-  .amount-display{font-size:30px;font-weight:800;font-family:'JetBrains Mono',monospace;text-align:center;padding:14px;background:var(--surface2);border-radius:14px;margin-bottom:14px;min-height:64px;display:flex;align-items:center;justify-content:center;letter-spacing:-1px;}
-  .amount-display.has-val.inc{color:var(--green);} .amount-display.has-val.exp{color:var(--red);}
-  .numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
-  .num-btn{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px;font-size:20px;font-weight:600;color:var(--text);cursor:pointer;font-family:'Sora',sans-serif;transition:all 0.1s;}
-  .num-btn:active{background:var(--border);transform:scale(0.96);}
-  .num-btn.del{font-size:16px;color:var(--muted);}
-  .cat-grid{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px;}
-  .cat-chip{padding:7px 13px;background:var(--surface2);border:1px solid var(--border);border-radius:100px;font-size:12px;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
-  .cat-chip.active{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:600;}
-  .note-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:12px;color:var(--text);padding:11px 14px;font-size:14px;font-family:'Sora',sans-serif;margin-bottom:12px;}
-  .note-input:focus{outline:none;border-color:var(--blue);}
-  .date-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:12px;color:var(--text);padding:11px 14px;font-size:14px;font-family:'Sora',sans-serif;margin-bottom:18px;}
-  .save-btn{width:100%;background:linear-gradient(135deg,var(--green),#00b87a);border:none;border-radius:14px;padding:15px;color:#000;font-weight:800;font-size:16px;font-family:'Sora',sans-serif;cursor:pointer;}
-  .save-btn:disabled{opacity:0.5;cursor:not-allowed;}
-  .field-label{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:7px;}
+/* stats */
+.stat-card { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:16px; margin-bottom:10px; }
+.stat-title { font-size:13px; font-weight:700; margin-bottom:12px; }
+.srow { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+.srow-name { font-size:12px; width:120px; flex-shrink:0; }
+.bar-bg { flex:1; height:5px; background:var(--border); border-radius:3px; overflow:hidden; }
+.bar-fg { height:100%; border-radius:3px; }
+.srow-val { font-size:11px; font-weight:600; font-family:'JetBrains Mono',monospace; width:80px; text-align:right; flex-shrink:0; }
+.wrow { display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--border); }
+.wrow:last-child { border-bottom:none; padding-bottom:0; }
+.wrow-name { font-size:13px; font-weight:600; }
+.wrow-val { font-size:14px; font-weight:700; font-family:'JetBrains Mono',monospace; }
+
+/* settings */
+.set-card { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:18px; margin-bottom:14px; }
+.set-title { font-size:13px; font-weight:700; margin-bottom:4px; }
+.set-desc { font-size:12px; color:var(--muted); line-height:1.6; margin-bottom:14px; }
+.fld-lbl { font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); margin-bottom:6px; }
+.fld { width:100%; background:var(--bg); border:1px solid var(--border); border-radius:10px; color:var(--text); padding:11px 14px; font-size:13px; font-family:'Sora',sans-serif; margin-bottom:12px; }
+.fld:focus { outline:none; border-color:var(--blue); }
+.fld::placeholder { color:var(--muted); }
+.blue-btn { width:100%; background:var(--blue); border:none; border-radius:10px; padding:12px; color:#fff; font-weight:700; font-size:14px; font-family:'Sora',sans-serif; cursor:pointer; }
+.status { border-radius:10px; padding:10px 14px; margin-top:10px; font-size:13px; }
+.status.ok { background:var(--green-dim); color:var(--green); }
+.status.warn { background:rgba(251,191,36,0.12); color:var(--gold); }
+.steps { list-style:none; }
+.steps li { display:flex; gap:10px; padding:10px 0; border-bottom:1px solid var(--border); font-size:13px; line-height:1.6; color:var(--muted); }
+.steps li:last-child { border-bottom:none; }
+.step-n { width:22px; height:22px; border-radius:50%; background:var(--surface2); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:var(--blue); flex-shrink:0; margin-top:1px; }
+code { background:var(--surface2); border-radius:4px; padding:1px 6px; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--blue); word-break:break-all; }
+
+/* bottom nav */
+.bnav { position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:100%; max-width:430px; background:#080f1e; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-around; padding:10px 16px 28px; z-index:20; }
+.nav-item { display:flex; flex-direction:column; align-items:center; gap:4px; background:transparent; border:none; color:var(--muted); font-size:10px; font-weight:600; font-family:'Sora',sans-serif; cursor:pointer; padding:6px 16px; border-radius:10px; }
+.nav-item .ni { font-size:20px; }
+.nav-item.active { color:var(--green); }
+.nav-home { background:linear-gradient(135deg,var(--green),#00b87a); color:#000 !important; border-radius:16px; padding:10px 22px; box-shadow:0 4px 20px rgba(0,229,160,0.3); }
+
+/* overlay + sheet */
+.overlay { position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:30; backdrop-filter:blur(6px); opacity:0; pointer-events:none; transition:opacity 0.25s; }
+.overlay.on { opacity:1; pointer-events:all; }
+.sheet { position:fixed; bottom:0; left:50%; transform:translateX(-50%) translateY(100%); width:100%; max-width:430px; background:var(--surface); border-radius:24px 24px 0 0; padding:0 20px 40px; z-index:31; transition:transform 0.35s cubic-bezier(0.34,1.2,0.64,1); max-height:92vh; overflow-y:auto; }
+.sheet.on { transform:translateX(-50%) translateY(0); }
+.sheet-pull { width:40px; height:4px; background:var(--border); border-radius:2px; margin:14px auto 0; }
+.sheet-hdr { display:flex; justify-content:space-between; align-items:center; padding:16px 0 18px; }
+.sheet-title { font-size:18px; font-weight:800; }
+.sheet-back { background:var(--surface2); border:1px solid var(--border); border-radius:12px; padding:7px 14px; color:var(--muted); font-size:12px; font-weight:600; font-family:'Sora',sans-serif; cursor:pointer; }
+
+/* form elements */
+.type-row { display:flex; gap:8px; margin-bottom:14px; }
+.type-btn { flex:1; padding:10px; border:1px solid var(--border); border-radius:12px; background:var(--surface2); color:var(--muted); font-weight:700; font-size:13px; font-family:'Sora',sans-serif; cursor:pointer; transition:all 0.2s; }
+.type-btn.inc.on { background:var(--green-dim); border-color:var(--green); color:var(--green); }
+.type-btn.exp.on { background:var(--red-dim); border-color:var(--red); color:var(--red); }
+.amt-box { font-size:30px; font-weight:800; font-family:'JetBrains Mono',monospace; text-align:center; padding:14px; background:var(--surface2); border-radius:14px; margin-bottom:14px; min-height:64px; display:flex; align-items:center; justify-content:center; letter-spacing:-1px; color:var(--muted); }
+.amt-box.has.inc { color:var(--green); } .amt-box.has.exp { color:var(--red); }
+.numpad { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
+.num { background:var(--surface2); border:1px solid var(--border); border-radius:12px; padding:14px; font-size:20px; font-weight:600; color:var(--text); cursor:pointer; font-family:'Sora',sans-serif; }
+.num:active { background:var(--border); transform:scale(0.95); }
+.num.del { font-size:15px; color:var(--muted); }
+.wallet-row { display:flex; gap:8px; margin-bottom:14px; }
+.wallet-btn { flex:1; padding:10px; border:1px solid var(--border); border-radius:12px; background:var(--surface2); color:var(--muted); font-weight:600; font-size:13px; font-family:'Sora',sans-serif; cursor:pointer; transition:all 0.2s; }
+.wallet-btn.bank-on { background:var(--purple-dim); border-color:var(--purple); color:var(--purple); }
+.wallet-btn.cash-on { background:rgba(251,191,36,0.12); border-color:var(--gold); color:var(--gold); }
+.cat-wrap { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:14px; }
+.cat-chip { padding:7px 13px; background:var(--surface2); border:1px solid var(--border); border-radius:100px; font-size:12px; cursor:pointer; white-space:nowrap; transition:all 0.2s; }
+.cat-chip.on { background:var(--blue); border-color:var(--blue); color:#fff; font-weight:600; }
+.note-in { width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:12px; color:var(--text); padding:11px 14px; font-size:14px; font-family:'Sora',sans-serif; margin-bottom:12px; }
+.note-in:focus { outline:none; border-color:var(--blue); }
+.date-in { width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:12px; color:var(--text); padding:11px 14px; font-size:14px; font-family:'Sora',sans-serif; margin-bottom:18px; }
+.save-btn { width:100%; background:linear-gradient(135deg,var(--green),#00b87a); border:none; border-radius:14px; padding:15px; color:#000; font-weight:800; font-size:16px; font-family:'Sora',sans-serif; cursor:pointer; }
+.save-btn:disabled { opacity:0.5; }
+.flbl { font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); margin-bottom:7px; }
 </style>
 </head>
 <body>
 <div id="app">
-  <div class="header">
-    <div class="header-row">
-      <div class="app-name">Ví cá nhân · Smith</div>
-      <div class="header-right">
-        <span class="sync-indicator" id="syncDot"></span>
-        <button class="icon-btn" onclick="loadFromNotion()" title="Tải lại từ Notion">🔄</button>
-        <button class="icon-btn" onclick="switchTab('settings')">⚙️</button>
+  <!-- header -->
+  <div class="hdr">
+    <div class="hdr-row">
+      <div class="hdr-name">Ví cá nhân · Smith</div>
+      <div class="hdr-right">
+        <span class="dot" id="syncDot"></span>
+        <button class="icon-btn" onclick="loadData()">🔄</button>
+        <button class="icon-btn" onclick="showTab('settings')">⚙️</button>
       </div>
     </div>
   </div>
 
-  <div class="balance-card">
-    <div class="balance-label">Số dư tháng này</div>
-    <div class="balance-amount" id="balanceAmount">₫0</div>
-    <div class="balance-month" id="balanceMonth"></div>
-    <div class="balance-row">
-      <div class="mini-stat">
-        <div class="mini-label">↑ Thu</div>
-        <div class="mini-val inc" id="totalInc">₫0</div>
-      </div>
-      <div class="mini-stat">
-        <div class="mini-label">↓ Chi</div>
-        <div class="mini-val exp" id="totalExp">₫0</div>
-      </div>
+  <!-- balance -->
+  <div class="bal-card">
+    <div class="bal-lbl">Số dư tháng này</div>
+    <div class="bal-amt" id="balAmt">₫0</div>
+    <div class="bal-month" id="balMonth"></div>
+    <div class="bal-row">
+      <div class="mini"><div class="mini-lbl">↑ Thu</div><div class="mini-val inc" id="totInc">₫0</div></div>
+      <div class="mini"><div class="mini-lbl">↓ Chi</div><div class="mini-val exp" id="totExp">₫0</div></div>
     </div>
   </div>
 
-  <div class="month-picker">
+  <!-- month picker -->
+  <div class="mpick">
     <label>Tháng</label>
-    <input type="month" id="monthPicker" oninput="render()">
+    <input type="month" id="mpicker" onchange="render()">
   </div>
 
+  <!-- tabs -->
   <div class="tabs">
-    <button class="tab active" onclick="switchTab('txns')" id="tab-txns">📋 Giao dịch</button>
-    <button class="tab" onclick="switchTab('stats')" id="tab-stats">📊 Thống kê</button>
-    <button class="tab" onclick="switchTab('settings')" id="tab-settings">⚙️ Cài đặt</button>
+    <button class="tab active" id="tab-txns" onclick="showTab('txns')">📋 Giao dịch</button>
+    <button class="tab" id="tab-stats" onclick="showTab('stats')">📊 Thống kê</button>
+    <button class="tab" id="tab-settings" onclick="showTab('settings')">⚙️ Cài đặt</button>
   </div>
 
-  <div class="section" id="sec-txns"></div>
-  <div class="section" id="sec-stats" style="display:none"></div>
-  <div class="section" id="sec-settings" style="display:none"></div>
+  <!-- sections -->
+  <div class="sec show" id="sec-txns"></div>
+  <div class="sec" id="sec-stats"></div>
+  <div class="sec" id="sec-settings"></div>
 </div>
 
-<div class="bottom-nav">
-  <button class="nav-btn" onclick="switchTab('txns')" id="nav-txns">
-    <span class="nav-icon">📋</span>Giao dịch
-  </button>
-  <button class="nav-btn home-btn" onclick="switchTab('txns')">
-    <span class="nav-icon">🏠</span>Home
-  </button>
-  <button class="nav-btn" onclick="openSheet()" id="nav-add">
-    <span class="nav-icon">➕</span>Thêm
-  </button>
+<!-- bottom nav -->
+<div class="bnav">
+  <button class="nav-item" id="nav-txns" onclick="showTab('txns')"><span class="ni">📋</span>Giao dịch</button>
+  <button class="nav-item nav-home" onclick="showTab('txns')"><span class="ni">🏠</span>Home</button>
+  <button class="nav-item" onclick="openSheet()"><span class="ni">➕</span>Thêm</button>
 </div>
 
+<!-- overlay -->
 <div class="overlay" id="overlay" onclick="closeSheet()"></div>
 
+<!-- sheet -->
 <div class="sheet" id="sheet">
-  <div class="sheet-handle"></div>
-  <div class="sheet-header">
+  <div class="sheet-pull"></div>
+  <div class="sheet-hdr">
     <div class="sheet-title">Giao dịch mới</div>
-    <button class="sheet-close" onclick="closeSheet()">🏠 Quay về</button>
+    <button class="sheet-back" onclick="closeSheet()">✕ Đóng</button>
   </div>
-  <div class="type-toggle">
-    <button class="type-btn exp active" id="btnExp" onclick="setType('expense')">↓ Chi tiêu</button>
+
+  <div class="type-row">
+    <button class="type-btn exp on" id="btnExp" onclick="setType('expense')">↓ Chi tiêu</button>
     <button class="type-btn inc" id="btnInc" onclick="setType('income')">↑ Thu nhập</button>
   </div>
-  <div class="amount-display exp" id="amtDisplay">₫0</div>
+
+  <div class="amt-box exp" id="amtBox">₫0</div>
+
   <div class="numpad">
-    <button class="num-btn" onclick="numpad('1')">1</button>
-    <button class="num-btn" onclick="numpad('2')">2</button>
-    <button class="num-btn" onclick="numpad('3')">3</button>
-    <button class="num-btn" onclick="numpad('4')">4</button>
-    <button class="num-btn" onclick="numpad('5')">5</button>
-    <button class="num-btn" onclick="numpad('6')">6</button>
-    <button class="num-btn" onclick="numpad('7')">7</button>
-    <button class="num-btn" onclick="numpad('8')">8</button>
-    <button class="num-btn" onclick="numpad('9')">9</button>
-    <button class="num-btn" onclick="numpad('0')">0</button>
-    <button class="num-btn" onclick="numpad('000')">000</button>
-    <button class="num-btn del" onclick="numpad('del')">⌫</button>
+    <button class="num" onclick="pad('1')">1</button>
+    <button class="num" onclick="pad('2')">2</button>
+    <button class="num" onclick="pad('3')">3</button>
+    <button class="num" onclick="pad('4')">4</button>
+    <button class="num" onclick="pad('5')">5</button>
+    <button class="num" onclick="pad('6')">6</button>
+    <button class="num" onclick="pad('7')">7</button>
+    <button class="num" onclick="pad('8')">8</button>
+    <button class="num" onclick="pad('9')">9</button>
+    <button class="num" onclick="pad('0')">0</button>
+    <button class="num" onclick="pad('000')">000</button>
+    <button class="num del" onclick="pad('del')">⌫</button>
   </div>
-  <div class="field-label">Thanh toán bằng</div>
-  <div class="wallet-toggle">
-    <button class="wallet-btn active-bank" id="btnBank" onclick="setWallet('bank')">🏦 Tài khoản</button>
+
+  <div class="flbl">Thanh toán bằng</div>
+  <div class="wallet-row">
+    <button class="wallet-btn bank-on" id="btnBank" onclick="setWallet('bank')">🏦 Tài khoản</button>
     <button class="wallet-btn" id="btnCash" onclick="setWallet('cash')">💵 Tiền mặt</button>
   </div>
-  <div class="field-label">Danh mục</div>
-  <div class="cat-grid" id="catGrid"></div>
-  <input class="note-input" id="noteInput" placeholder="Ghi chú (tuỳ chọn)...">
-  <input class="date-input" type="date" id="dateInput">
+
+  <div class="flbl">Danh mục</div>
+  <div class="cat-wrap" id="catWrap"></div>
+
+  <input class="note-in" id="noteIn" placeholder="Ghi chú (tuỳ chọn)...">
+  <input class="date-in" type="date" id="dateIn">
   <button class="save-btn" id="saveBtn" onclick="saveTxn()">💾 Lưu giao dịch</button>
 </div>
 
-<script>  return y+'-'+m+'-'+day;
-};
-  return y+'-'+m;
-};
+<script>
+// ═══════════════════════════════════════════
+// CONSTANTS
+// ═══════════════════════════════════════════
+var CATS = {
   income:  ['💼 Lương','💰 Kinh doanh','🎁 Thưởng','📈 Đầu tư','🌾 Nông nghiệp','🔄 Khác'],
-  expense: ['🍜 Ăn uống','💑 Đưa vợ','🏠 Nhà ở','🚗 Di chuyển','🛍️ Mua sắm','💊 Y tế','📚 Học tập','🎮 Giải trí','⛽ Xăng xe','🔄 Khác'],
+  expense: ['🍜 Ăn uống','💑 Đưa vợ','🏠 Nhà ở','🚗 Di chuyển','🛍️ Mua sắm','💊 Y tế','📚 Học tập','🎮 Giải trí','⛽ Xăng xe','🔄 Khác']
 };
+
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+var txns = [];
+var cfg = {};
+var curType = 'expense';
+var curWallet = 'bank';
+var curCat = CATS.expense[0];
+var amtStr = '';
+
+// ═══════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════
+function getMonth() {
+  var d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+}
+function getToday() {
+  var d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function fmt(n) {
+  return new Intl.NumberFormat('vi-VN',{style:'currency',currency:'VND'}).format(n);
+}
+function fmtS(n) {
   if(n>=1e9) return (n/1e9).toFixed(1).replace('.0','')+'tỷ';
   if(n>=1e6) return (n/1e6).toFixed(1).replace('.0','')+'tr';
   if(n>=1e3) return (n/1e3).toFixed(0)+'k';
-  return n.toString();
-};
-function setSyncDot(state) {
-  d.className = 'sync-indicator ' + state;
-  d.title = state==='ok'?'Đã đồng bộ':state==='loading'?'Đang tải...':'Chưa kết nối Notion';
+  return String(n);
 }
-async function loadFromNotion() {
-  if(!cfg.token || !cfg.dbId) { setSyncDot('err'); render(); return; }
-  setSyncDot('loading');
-  isLoading = true;
-  showSkeleton();
-  try {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token: cfg.token, dbId: cfg.dbId }),
-    });
-    if(!res.ok) {
-      throw new Error('Lỗi server');
-    }
-    if(data.error) throw new Error(data.error);
-    txns = data.txns || [];
-    setSyncDot('ok');
-    render();
-    showToast('✅ Đã tải '+txns.length+' giao dịch');
-  } catch(e) {
-    setSyncDot('err');
-    render();
-    showToast('❌ '+e.message);
-  }
-  isLoading = false;
+function toast(msg) {
+  var t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = 'position:fixed;bottom:85px;left:50%;transform:translateX(-50%);background:#1e2d45;border:1px solid #2a4060;color:#e8f0fe;padding:10px 20px;border-radius:100px;font-size:13px;font-weight:600;font-family:Sora,sans-serif;z-index:99;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,0.4);';
+  document.body.appendChild(t);
+  setTimeout(function(){ t.remove(); }, 2800);
 }
+function setDot(s) {
+  var d = document.getElementById('syncDot');
+  if(d) d.className = 'dot ' + s;
 }
+function saveCfg() {
+  localStorage.setItem('vcn_cfg', JSON.stringify(cfg));
+}
+function loadCfg() {
+  try { cfg = JSON.parse(localStorage.getItem('vcn_cfg') || '{}'); } catch(e) { cfg = {}; }
+}
+
+// ═══════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════
+function showTab(name) {
+  ['txns','stats','settings'].forEach(function(t) {
+    var s = document.getElementById('sec-'+t);
+    var b = document.getElementById('tab-'+t);
+    var n = document.getElementById('nav-'+t);
+    if(s) s.className = 'sec' + (t===name?' show':'');
+    if(b) b.className = 'tab' + (t===name?' active':'');
+    if(n) n.className = 'nav-item' + (t===name?' active':'');
+  });
+  if(name==='settings') renderSettings();
+}
+
+// ═══════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════
 function render() {
-  document.getElementById('totalInc').textContent = fmt(inc);
-  document.getElementById('totalExp').textContent = fmt(exp);
-  balEl.textContent = fmt(bal);
-  balEl.className = 'balance-amount'+(bal>0?' positive':bal<0?' negative':'');
-  document.getElementById('balanceMonth').textContent = `${names[+m]} năm ${y}`;
+  var month = document.getElementById('mpicker').value;
+  if(!month) return;
+
+  var filtered = txns.filter(function(t){ return t.date && t.date.indexOf(month)===0; });
+  var inc = 0, exp = 0;
+  filtered.forEach(function(t){ if(t.type==='income') inc+=t.amount; else exp+=t.amount; });
+  var bal = inc - exp;
+
+  document.getElementById('totInc').textContent = fmt(inc);
+  document.getElementById('totExp').textContent = fmt(exp);
+  var ba = document.getElementById('balAmt');
+  ba.textContent = fmt(bal);
+  ba.className = 'bal-amt' + (bal>0?' pos':bal<0?' neg':'');
+
+  var parts = month.split('-');
+  var names = ['','Tháng 1','Tháng 2','Tháng 3','Tháng 4','Tháng 5','Tháng 6','Tháng 7','Tháng 8','Tháng 9','Tháng 10','Tháng 11','Tháng 12'];
+  document.getElementById('balMonth').textContent = names[parseInt(parts[1],10)] + ' năm ' + parts[0];
+
   renderTxns(filtered);
   renderStats(filtered, inc, exp);
 }
-function showSkeleton() {
-  document.getElementById('sec-txns').innerHTML = [1,2,3,4].map(()=>`
-    <div class="skeleton">
-      <div class="skel-line"></div>
-      <div class="skel-line short"></div>
-    </div>`).join('');
-}
+
 function renderTxns(filtered) {
-  if(isLoading) return;
-  if(!filtered.length){
-    el.innerHTML = '<div class="empty">📭 Chưa có giao dịch<br><span style="font-size:12px">Bấm <b>➕ Thêm</b> để bắt đầu</span></div>';
+  var el = document.getElementById('sec-txns');
+  if(!filtered.length) {
+    el.innerHTML = '<div class="empty">📭 Chưa có giao dịch<br><small>Bấm ➕ Thêm để bắt đầu</small></div>';
     return;
   }
-  filtered.forEach(t => { (groups[t.date]=groups[t.date]||[]).push(t); });
-  el.innerHTML = sortedDates.map(date => {
-        ? '<span class="wallet-badge wallet-cash">💵 Tiền mặt</span>'
-        : '<span class="wallet-badge wallet-bank">🏦 TK</span>';
-      return `
-      <div class="txn-item">
-        <div class="txn-icon ${t.type==='income'?'inc':'exp'}">${t.type==='income'?'↑':'↓'}</div>
-        <div class="txn-info">
-          <div class="txn-cat">${t.category || t.note || '—'}</div>
-          <div class="txn-meta">
-            ${wBadge}
-            ${t.note&&t.category&&t.note!==t.category?`<span>${t.note}</span>`:''}
-            ${t.synced?'<span class="notion-badge">✓ Notion</span>':t.syncing?'<span class="syncing-badge">⏳</span>':''}
-          </div>
-        </div>
-        <div class="txn-right">
-          <div class="txn-amt ${t.type==='income'?'inc':'exp'}">${t.type==='income'?'+':'-'}${fmtShort(t.amount)}</div>
-          <button class="del-btn" onclick="deleteTxn('${t.id}','${t.notionId||''}')">×</button>
-        </div>
-      </div>`;
-    }).join('');
-    return `<div class="txn-group-label">${label}</div>${rows}`;
-  }).join('');
-}
-function formatDateLabel(dateStr) {
-  if(diff===0) return '📅 Hôm nay';
-  if(diff===1) return '📅 Hôm qua';
-  return `📅 ${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;
-}
-function renderStats(filtered, inc, exp) {
-  filtered.forEach(t => { catMap[t.category]=(catMap[t.category]||0)+t.amount; });
-    if(!list.length) return '';
-    return `<div class="cat-card"><div class="cat-title">${title}</div>${
-      list.map(([cat,amt])=>{
-        return `<div class="cat-row">
-          <div class="cat-name">${cat}</div>
-          <div class="bar-wrap"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div>
-          <div class="cat-val" style="color:${color}">${fmtShort(amt)}</div>
-        </div>`;
-      }).join('')
-    }</div>`;
-  };
-  el.innerHTML = `
-    <div class="wallet-card">
-      <div class="cat-title">💳 Theo hình thức thanh toán</div>
-      <div class="wallet-row"><span class="wallet-name" style="color:var(--purple)">🏦 Tài khoản — Chi</span><span class="wallet-amt" style="color:var(--red)">${fmt(bankExp)}</span></div>
-      <div class="wallet-row"><span class="wallet-name" style="color:var(--gold)">💵 Tiền mặt — Chi</span><span class="wallet-amt" style="color:var(--red)">${fmt(cashExp)}</span></div>
-      <div class="wallet-row"><span class="wallet-name" style="color:var(--purple)">🏦 Tài khoản — Thu</span><span class="wallet-amt" style="color:var(--green)">${fmt(bankInc)}</span></div>
-      <div class="wallet-row"><span class="wallet-name" style="color:var(--gold)">💵 Tiền mặt — Thu</span><span class="wallet-amt" style="color:var(--green)">${fmt(cashInc)}</span></div>
-    </div>
-    ${renderCatBlock('💸 Chi tiêu theo danh mục',expCats,exp,'var(--red)')}
-    ${renderCatBlock('💚 Thu nhập theo danh mục',incCats,inc,'var(--green)')}
-    ${!expCats.length&&!incCats.length?'<div class="empty">Chưa có dữ liệu</div>':''}`;
-}
-function renderSettings() {
-  el.innerHTML = `
-    <div class="settings-card">
-      <div class="settings-title">🔗 Kết nối Notion</div>
-      <div class="settings-desc">Dữ liệu lưu trên Notion — đồng bộ tự động mọi thiết bị.</div>
-      <div class="input-label">Notion Integration Token</div>
-      <input class="input-field" id="cfgToken" type="password" placeholder="secret_xxxxxxxxxxxx" value="${cfg.token||''}">
-      <div class="input-label">Database ID</div>
-      <input class="input-field" id="cfgDb" placeholder="32 ký tự từ URL database Notion" value="${cfg.dbId||''}">
-      <button class="save-cfg-btn" onclick="saveCfg()">💾 Lưu & kết nối</button>
-      <div class="${hasToken?'status-ok':'status-warn'}">${hasToken?'✅ Đã kết nối Notion':'⚠️ Chưa cài đặt'}</div>
-    </div>
-    <div class="settings-card">
-      <div class="settings-title">📋 Hướng dẫn</div>
-      <ul class="guide-steps">
-        <li><span class="step-num">1</span><span>Vào <code>notion.so/my-integrations</code> → Tạo integration → Copy token</span></li>
-        <li><span class="step-num">2</span><span>Tạo database với cột: <code>Name, Loại, Số tiền, Danh mục, Ví, Ngày, Ghi chú</code></span></li>
-        <li><span class="step-num">3</span><span>Share database → Kết nối với integration</span></li>
-        <li><span class="step-num">4</span><span>Copy Database ID từ URL Notion dán vào ô trên</span></li>
-      </ul>
-    </div>
-    <div class="settings-card">
-      <div class="settings-title">🗄️ Dữ liệu</div>
-      <div class="settings-desc">Tổng: <b>${txns.length}</b> giao dịch đã tải từ Notion</div>
-      <button onclick="loadFromNotion()" style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 16px;color:var(--text);font-size:13px;font-family:'Sora',sans-serif;cursor:pointer;width:100%">🔄 Tải lại từ Notion</button>
-    </div>`;
-}
-function saveCfg() {
-  cfg = { token: document.getElementById('cfgToken').value.trim(), dbId: document.getElementById('cfgDb').value.trim() };
-  localStorage.setItem('notion_cfg', JSON.stringify(cfg));
-  renderSettings();
-  showToast('✅ Đã lưu! Đang kết nối...');
-  loadFromNotion();
-}
-function switchTab(tab) {
-  currentTab = tab;
-  ['txns','stats','settings'].forEach(t => {
-    document.getElementById('sec-'+t).style.display = t===tab?'block':'none';
-    document.getElementById('tab-'+t).classList.toggle('active', t===tab);
+  var groups = {};
+  filtered.forEach(function(t){ if(!groups[t.date]) groups[t.date]=[]; groups[t.date].push(t); });
+  var dates = Object.keys(groups).sort(function(a,b){ return b>a?1:-1; });
+  var html = '';
+  dates.forEach(function(date) {
+    var dayTxns = groups[date];
+    var d = new Date(date+'T00:00:00');
+    var now = new Date(); now.setHours(0,0,0,0);
+    var diff = Math.round((now-d)/86400000);
+    var lbl = diff===0?'📅 Hôm nay':diff===1?'📅 Hôm qua':'📅 '+d.getDate()+'/'+(d.getMonth()+1)+'/'+d.getFullYear();
+    html += '<div class="grp-lbl">'+lbl+'</div>';
+    dayTxns.forEach(function(t) {
+      var wb = t.wallet==='cash'?'<span class="badge badge-cash">💵 Tiền mặt</span>':'<span class="badge badge-bank">🏦 TK</span>';
+      var sb = t.synced?'<span class="badge badge-notion">✓ Notion</span>':t.syncing?'<span class="badge badge-sync">⏳</span>':'';
+      var note = (t.note && t.category && t.note!==t.category) ? '<span>'+t.note+'</span>' : '';
+      html += '<div class="txn">'
+        +'<div class="txn-ico '+(t.type==='income'?'inc':'exp')+'">'+(t.type==='income'?'↑':'↓')+'</div>'
+        +'<div class="txn-body">'
+          +'<div class="txn-cat">'+(t.category||t.note||'—')+'</div>'
+          +'<div class="txn-meta">'+wb+note+sb+'</div>'
+        +'</div>'
+        +'<div class="txn-right">'
+          +'<div class="txn-amt '+(t.type==='income'?'inc':'exp')+'">'+(t.type==='income'?'+':'-')+fmtS(t.amount)+'</div>'
+          +'<button class="del-btn" onclick="delTxn(\''+t.id+'\',\''+(t.notionId||'')+'\')" >×</button>'
+        +'</div>'
+      +'</div>';
+    });
   });
-  document.querySelectorAll('.nav-btn:not(.home-btn)').forEach(b=>b.classList.remove('active'));
-  if(n) n.classList.add('active');
-  if(tab==='settings') renderSettings();
+  el.innerHTML = html;
 }
+
+function renderStats(filtered, inc, exp) {
+  var el = document.getElementById('sec-stats');
+  var catMap = {};
+  filtered.forEach(function(t){ catMap[t.category]=(catMap[t.category]||0)+t.amount; });
+  var cats = Object.keys(catMap).map(function(c){ return [c, catMap[c]]; }).sort(function(a,b){ return b[1]-a[1]; });
+  var expCats = cats.filter(function(c){ return CATS.expense.indexOf(c[0])>=0; });
+  var incCats = cats.filter(function(c){ return CATS.income.indexOf(c[0])>=0; });
+  var bankExp = 0, cashExp = 0, bankInc = 0, cashInc = 0;
+  filtered.forEach(function(t){
+    if(t.type==='expense'&&t.wallet==='cash') cashExp+=t.amount;
+    else if(t.type==='expense') bankExp+=t.amount;
+    else if(t.type==='income'&&t.wallet==='cash') cashInc+=t.amount;
+    else bankInc+=t.amount;
+  });
+  function catBlock(title, list, total, color) {
+    if(!list.length) return '';
+    var rows = list.map(function(c){
+      var pct = total ? Math.round(c[1]/total*100) : 0;
+      return '<div class="srow"><div class="srow-name">'+c[0]+'</div><div class="bar-bg"><div class="bar-fg" style="width:'+pct+'%;background:'+color+'"></div></div><div class="srow-val" style="color:'+color+'">'+fmtS(c[1])+'</div></div>';
+    }).join('');
+    return '<div class="stat-card"><div class="stat-title">'+title+'</div>'+rows+'</div>';
+  }
+  el.innerHTML = '<div class="stat-card"><div class="stat-title">💳 Theo hình thức thanh toán</div>'
+    +'<div class="wrow"><span class="wrow-name" style="color:var(--purple)">🏦 Tài khoản — Chi</span><span class="wrow-val" style="color:var(--red)">'+fmt(bankExp)+'</span></div>'
+    +'<div class="wrow"><span class="wrow-name" style="color:var(--gold)">💵 Tiền mặt — Chi</span><span class="wrow-val" style="color:var(--red)">'+fmt(cashExp)+'</span></div>'
+    +'<div class="wrow"><span class="wrow-name" style="color:var(--purple)">🏦 Tài khoản — Thu</span><span class="wrow-val" style="color:var(--green)">'+fmt(bankInc)+'</span></div>'
+    +'<div class="wrow"><span class="wrow-name" style="color:var(--gold)">💵 Tiền mặt — Thu</span><span class="wrow-val" style="color:var(--green)">'+fmt(cashInc)+'</span></div>'
+    +'</div>'
+    + catBlock('💸 Chi tiêu theo danh mục', expCats, exp, 'var(--red)')
+    + catBlock('💚 Thu nhập theo danh mục', incCats, inc, 'var(--green)')
+    + (!expCats.length&&!incCats.length?'<div class="empty">Chưa có dữ liệu</div>':'');
+}
+
+function renderSettings() {
+  var el = document.getElementById('sec-settings');
+  var ok = cfg.token && cfg.dbId;
+  el.innerHTML = '<div class="set-card">'
+    +'<div class="set-title">🔗 Kết nối Notion</div>'
+    +'<div class="set-desc">Dữ liệu lưu trên Notion, đồng bộ mọi thiết bị tự động.</div>'
+    +'<div class="fld-lbl">Notion Integration Token</div>'
+    +'<input class="fld" id="cfgTok" type="password" placeholder="secret_xxx..." value="'+(cfg.token||'')+'"><div class="fld-lbl">Database ID</div>'
+    +'<input class="fld" id="cfgDb" placeholder="32 ký tự từ URL Notion" value="'+(cfg.dbId||'')+'"><button class="blue-btn" onclick="saveSettings()">💾 Lưu & kết nối</button>'
+    +'<div class="status '+(ok?'ok':'warn')+'">'+(ok?'✅ Đã kết nối Notion':'⚠️ Chưa cài đặt — nhập token và database ID')+'</div>'
+    +'</div>'
+    +'<div class="set-card"><div class="set-title">📋 Hướng dẫn</div><ul class="steps">'
+    +'<li><span class="step-n">1</span><span>Vào <code>notion.so/my-integrations</code> → Tạo integration → Copy token <code>secret_xxx</code></span></li>'
+    +'<li><span class="step-n">2</span><span>Tạo database Notion với cột: <code>Name</code> <code>Loại</code> <code>Số tiền</code> <code>Danh mục</code> <code>Ví</code> <code>Ngày</code> <code>Ghi chú</code></span></li>'
+    +'<li><span class="step-n">3</span><span>Mở database → <b>···</b> → <b>Kết nối với</b> → chọn integration</span></li>'
+    +'<li><span class="step-n">4</span><span>Copy 32 ký tự Database ID từ URL: <code>notion.so/.../[ID]?v=</code></span></li>'
+    +'</ul></div>'
+    +'<div class="set-card"><div class="set-title">🗄️ Dữ liệu</div>'
+    +'<div class="set-desc">Đã tải: <b>'+txns.length+'</b> giao dịch từ Notion</div>'
+    +'<button onclick="loadData()" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px;color:var(--text);font-size:13px;font-family:Sora,sans-serif;cursor:pointer">🔄 Tải lại từ Notion</button>'
+    +'</div>';
+}
+
+function saveSettings() {
+  var tok = document.getElementById('cfgTok').value.trim();
+  var db = document.getElementById('cfgDb').value.trim();
+  cfg = { token: tok, dbId: db };
+  saveCfg();
+  renderSettings();
+  toast('✅ Đã lưu! Đang kết nối...');
+  loadData();
+}
+
+// ═══════════════════════════════════════════
+// SHEET
+// ═══════════════════════════════════════════
 function openSheet() {
-  document.getElementById('overlay').classList.add('open');
-  document.getElementById('sheet').classList.add('open');
-  amountStr=''; updateAmtDisplay();
+  amtStr = '';
+  updateAmt();
+  document.getElementById('overlay').className = 'overlay on';
+  document.getElementById('sheet').className = 'sheet on';
 }
 function closeSheet() {
-  document.getElementById('overlay').classList.remove('open');
-  document.getElementById('sheet').classList.remove('open');
+  document.getElementById('overlay').className = 'overlay';
+  document.getElementById('sheet').className = 'sheet';
 }
-function numpad(v) {
-  if(v==='del') amountStr=amountStr.slice(0,-1);
-  else if(amountStr.length<12) amountStr+=v;
-  updateAmtDisplay();
+
+// ═══════════════════════════════════════════
+// FORM
+// ═══════════════════════════════════════════
+function pad(v) {
+  if(v==='del') amtStr = amtStr.slice(0,-1);
+  else if(amtStr.length<12) amtStr += v;
+  updateAmt();
 }
-function updateAmtDisplay() {
-  el.textContent = fmt(val);
-  el.className = 'amount-display '+currentType+(val>0?' has-val':'');
+function updateAmt() {
+  var n = parseInt(amtStr||'0')||0;
+  var el = document.getElementById('amtBox');
+  el.textContent = fmt(n);
+  el.className = 'amt-box' + (n>0?' has ':'  ') + curType;
 }
 function setType(t) {
-  currentType=t;
-  document.getElementById('btnExp').classList.toggle('active',t==='expense');
-  document.getElementById('btnInc').classList.toggle('active',t==='income');
-  updateAmtDisplay();
-  selectedCat=CATS[t][0]; buildCatGrid();
+  curType = t;
+  document.getElementById('btnExp').className = 'type-btn exp' + (t==='expense'?' on':'');
+  document.getElementById('btnInc').className = 'type-btn inc' + (t==='income'?' on':'');
+  updateAmt();
+  curCat = CATS[t][0];
+  buildCats();
 }
 function setWallet(w) {
-  currentWallet=w;
-  document.getElementById('btnBank').className='wallet-btn'+(w==='bank'?' active-bank':'');
-  document.getElementById('btnCash').className='wallet-btn'+(w==='cash'?' active-cash':'');
+  curWallet = w;
+  document.getElementById('btnBank').className = 'wallet-btn' + (w==='bank'?' bank-on':'');
+  document.getElementById('btnCash').className = 'wallet-btn' + (w==='cash'?' cash-on':'');
 }
-function buildCatGrid() {
-  document.getElementById('catGrid').innerHTML = CATS[currentType].map(c=>
-    `<div class="cat-chip${c===selectedCat?' active':''}" onclick="selectCat('${c.replace(/'/g,"\\'")}')">${c}</div>`
-  ).join('');
+function buildCats() {
+  var html = '';
+  CATS[curType].forEach(function(c) {
+    html += '<div class="cat-chip'+(c===curCat?' on':'')+'" onclick="pickCat(\''+c.replace(/'/g,"\\'")+'\')">' + c + '</div>';
+  });
+  document.getElementById('catWrap').innerHTML = html;
 }
-function selectCat(c) { selectedCat=c; buildCatGrid(); }
+function pickCat(c) { curCat = c; buildCats(); }
+
+// ═══════════════════════════════════════════
+// SAVE
+// ═══════════════════════════════════════════
 async function saveTxn() {
-  if(!amount) { showToast('⚠️ Vui lòng nhập số tiền'); return; }
-  btn.disabled=true; btn.textContent='⏳ Đang lưu...';
-    id: Date.now(),
-    type: currentType,
-    wallet: currentWallet,
-    amount,
-    category: selectedCat,
-    note: document.getElementById('noteInput').value.trim(),
-    date: document.getElementById('dateInput').value || today(),
-    synced: false, syncing: true,
+  var amount = parseInt(amtStr||'0');
+  if(!amount) { toast('⚠️ Vui lòng nhập số tiền'); return; }
+  var btn = document.getElementById('saveBtn');
+  btn.disabled = true; btn.textContent = '⏳ Đang lưu...';
+
+  var txn = {
+    id: String(Date.now()),
+    notionId: '',
+    type: curType,
+    wallet: curWallet,
+    amount: amount,
+    category: curCat,
+    note: document.getElementById('noteIn').value.trim(),
+    date: document.getElementById('dateIn').value || getToday(),
+    synced: false,
+    syncing: true
   };
+
   txns.unshift(txn);
   render();
   closeSheet();
-  btn.disabled=false; btn.textContent='💾 Lưu giao dịch';
-  amountStr='';
-  document.getElementById('noteInput').value='';
+  btn.disabled = false; btn.textContent = '💾 Lưu giao dịch';
+  amtStr = '';
+  document.getElementById('noteIn').value = '';
+
   if(cfg.token && cfg.dbId) {
     try {
+      var payload = {
         'Name':     { title:[{text:{content: txn.note||txn.category}}] },
         'Loại':     { select:{name: txn.type==='income'?'Thu':'Chi'} },
         'Số tiền':  { number: txn.amount },
         'Danh mục': { rich_text:[{text:{content: txn.category}}] },
         'Ví':       { select:{name: txn.wallet==='cash'?'Tiền mặt':'Tài khoản'} },
         'Ngày':     { date:{start: txn.date} },
-        'Ghi chú':  { rich_text:[{text:{content: txn.note||''}}] },
+        'Ghi chú':  { rich_text:[{text:{content: txn.note||''}}] }
       };
+      var r = await fetch('/api/notion', {
         method:'POST',
         headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({token:cfg.token, dbId:cfg.dbId, payload}),
+        body: JSON.stringify({token:cfg.token, dbId:cfg.dbId, payload:payload})
       });
-      if(i!==-1) {
-        txns[i].syncing=false;
-        txns[i].synced=res.ok&&data.success;
-        if(data.id) txns[i].notionId=data.id;
-      }
+      var d = await r.json();
+      var i = txns.findIndex(function(t){ return t.id===txn.id; });
+      if(i>=0) { txns[i].syncing=false; txns[i].synced=r.ok&&d.success; if(d.id) txns[i].notionId=d.id; }
       render();
-      if(res.ok) showToast('📒 Đã lưu vào Notion!');
-      else showToast('⚠️ Lỗi: '+(data.error||'Kiểm tra cài đặt'));
+      toast(r.ok ? '📒 Đã lưu vào Notion!' : '⚠️ Lỗi: '+(d.error||'kiểm tra cài đặt'));
     } catch(e) {
-      if(i!==-1){txns[i].syncing=false; render();}
-      showToast('❌ Không kết nối được Notion');
+      var i = txns.findIndex(function(t){ return t.id===txn.id; });
+      if(i>=0) { txns[i].syncing=false; render(); }
+      toast('❌ Không kết nối được Notion');
     }
   } else {
-    showToast('✅ Đã lưu! (Chưa kết nối Notion)');
-    if(i!==-1){txns[i].syncing=false; render();}
+    var i = txns.findIndex(function(t){ return t.id===txn.id; });
+    if(i>=0) { txns[i].syncing=false; render(); }
+    toast('✅ Đã lưu! (Chưa kết nối Notion)');
   }
 }
-async function deleteTxn(localId, notionId) {
-  txns = txns.filter(t=>String(t.id)!==String(localId));
+
+// ═══════════════════════════════════════════
+// DELETE
+// ═══════════════════════════════════════════
+async function delTxn(localId, notionId) {
+  txns = txns.filter(function(t){ return t.id!==localId; });
   render();
   if(notionId && cfg.token) {
     try {
       await fetch('/api/notion-delete', {
         method:'POST',
         headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({token:cfg.token, pageId:notionId}),
+        body: JSON.stringify({token:cfg.token, pageId:notionId})
       });
-      showToast('🗑️ Đã xoá khỏi Notion');
-    } catch(e) {
-      showToast('⚠️ Xoá local nhưng chưa xoá Notion');
-    }
+      toast('🗑️ Đã xoá khỏi Notion');
+    } catch(e) { toast('⚠️ Xoá local nhưng chưa xoá Notion'); }
   }
 }
-function showToast(msg) {
-  Object.assign(t.style,{
-    position:'fixed',bottom:'90px',left:'50%',transform:'translateX(-50%)',
-    background:'#1e2d45',border:'1px solid #2a4060',color:'#e8f0fe',
-    padding:'10px 20px',borderRadius:'100px',fontSize:'13px',fontWeight:'600',
-    fontFamily:"'Sora',sans-serif",zIndex:'99',whiteSpace:'nowrap',
-    boxShadow:'0 4px 20px rgba(0,0,0,0.4)',
-  });
-  t.textContent=msg;
-  document.body.appendChild(t);
-  setTimeout(()=>t.remove(),2800);
+
+// ═══════════════════════════════════════════
+// LOAD FROM NOTION
+// ═══════════════════════════════════════════
+async function loadData() {
+  if(!cfg.token || !cfg.dbId) { setDot('err'); render(); return; }
+  setDot('loading');
+  // show skeleton
+  document.getElementById('sec-txns').innerHTML = '<div class="skel"><div class="skel-line"></div><div class="skel-line s"></div></div><div class="skel"><div class="skel-line"></div><div class="skel-line s"></div></div><div class="skel"><div class="skel-line"></div><div class="skel-line s"></div></div>';
+  try {
+    var r = await fetch('/api/notion-read', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({token:cfg.token, dbId:cfg.dbId})
+    });
+    var text = await r.text();
+    var d;
+    try { d = JSON.parse(text); } catch(e) { throw new Error('Server lỗi: '+text.slice(0,80)); }
+    if(!r.ok) throw new Error(d.error||'Lỗi tải dữ liệu');
+    txns = d.txns || [];
+    setDot('ok');
+    render();
+    toast('✅ Đã tải '+txns.length+' giao dịch');
+  } catch(e) {
+    setDot('err');
+    render();
+    toast('❌ '+e.message);
+  }
 }
 
-
-// ── state ──
-let cfg = JSON.parse(localStorage.getItem('notion_cfg') || '{}');
-let txns = [];
-let currentType = 'expense';
-let currentWallet = 'bank';
-let amountStr = '';
-let selectedCat = '';
-let currentTab = 'txns';
-let isLoading = false;
-
-const today = () => {
-  const d = new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth()+1).padStart(2,'0');
-  const day = String(d.getDate()).padStart(2,'0');
-const thisMonth = () => {
-  const d = new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth()+1).padStart(2,'0');
-
-const CATS = {
-
-const fmt = n => new Intl.NumberFormat('vi-VN',{style:'currency',currency:'VND'}).format(n);
-const fmtShort = n => {
-
-// ── init ──
-
-// ── sync dot ──
-  const d = document.getElementById('syncDot');
-
-// ── load from Notion ──
-
-    const res = await fetch('/api/notion-read', {
-      const err = await res.text();
-    const data = await res.json();
-
-// ── render ──
-  const month = document.getElementById('monthPicker').value;
-  const filtered = txns.filter(t => t.date && t.date.startsWith(month));
-  const inc = filtered.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
-  const exp = filtered.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
-  const bal = inc - exp;
-
-  const balEl = document.getElementById('balanceAmount');
-
-  const [y,m] = month.split('-');
-  const names=['','Tháng 1','Tháng 2','Tháng 3','Tháng 4','Tháng 5','Tháng 6','Tháng 7','Tháng 8','Tháng 9','Tháng 10','Tháng 11','Tháng 12'];
-
-
-
-  const el = document.getElementById('sec-txns');
-  const groups = {};
-  const sortedDates = Object.keys(groups).sort((a,b)=>b.localeCompare(a));
-    const dayTxns = groups[date];
-    const label = formatDateLabel(date);
-    const rows = dayTxns.map(t => {
-      const wBadge = t.wallet==='cash'
-
-  const d = new Date(dateStr+'T00:00:00');
-  const td = new Date(); td.setHours(0,0,0,0);
-  const diff = Math.round((td-d)/86400000);
-
-  const el = document.getElementById('sec-stats');
-  const catMap = {};
-  const cats = Object.entries(catMap).sort((a,b)=>b[1]-a[1]);
-  const expCats = cats.filter(([c])=>CATS.expense.includes(c));
-  const incCats = cats.filter(([c])=>CATS.income.includes(c));
-
-  const bankExp = filtered.filter(t=>t.type==='expense'&&t.wallet!=='cash').reduce((s,t)=>s+t.amount,0);
-  const cashExp = filtered.filter(t=>t.type==='expense'&&t.wallet==='cash').reduce((s,t)=>s+t.amount,0);
-  const bankInc = filtered.filter(t=>t.type==='income'&&t.wallet!=='cash').reduce((s,t)=>s+t.amount,0);
-  const cashInc = filtered.filter(t=>t.type==='income'&&t.wallet==='cash').reduce((s,t)=>s+t.amount,0);
-
-  const renderCatBlock = (title, list, total, color) => {
-        const pct = total?Math.round(amt/total*100):0;
-
-
-  const el = document.getElementById('sec-settings');
-  const hasToken = cfg.token && cfg.dbId;
-
-
-// ── tab ──
-  const n = document.getElementById('nav-'+tab);
-
-// ── sheet ──
-
-// ── numpad ──
-  const el = document.getElementById('amtDisplay');
-  const val = parseInt(amountStr||'0')||0;
-
-// ── type/wallet/cat ──
-
-// ── save ──
-  const amount = parseInt(amountStr||'0');
-  const btn = document.getElementById('saveBtn');
-
-  const txn = {
-
-  // optimistic update
-
-  // push to Notion
-      const payload = {
-      const res = await fetch('/api/notion', {
-      const data = await res.json();
-      const i = txns.findIndex(t=>t.id===txn.id);
-      const i=txns.findIndex(t=>t.id===txn.id);
-    const i=txns.findIndex(t=>t.id===txn.id);
-
-// ── delete ──
-
-  const t=document.createElement('div');
-
-
-document.addEventListener('DOMContentLoaded', function() {
-  document.getElementById('monthPicker').value = thisMonth();
-  document.getElementById('dateInput').value = today();
-  selectedCat = CATS.expense[0];
-  buildCatGrid();
-  setSyncDot('loading');
-
+// ═══════════════════════════════════════════
+// INIT — runs after page fully loaded
+// ═══════════════════════════════════════════
+window.onload = function() {
+  loadCfg();
+  document.getElementById('mpicker').value = getMonth();
+  document.getElementById('dateIn').value = getToday();
+  curCat = CATS.expense[0];
+  buildCats();
+  setDot(cfg.token && cfg.dbId ? 'loading' : 'err');
   if(cfg.token && cfg.dbId) {
-    loadFromNotion();
+    loadData();
   } else {
-    setSyncDot('err');
     render();
   }
-});</script>
+};
+</script>
 </body>
 </html>
