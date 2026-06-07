@@ -9,7 +9,7 @@ export default async function handler(req, res) {
   if (!token || !pageId) return res.status(400).json({ error: 'Thiếu token hoặc pageId' });
 
   try {
-    const notionRes = await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
+    const r = await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
       method: 'PATCH',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -18,10 +18,10 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({ archived: true }),
     });
-    const data = await notionRes.json();
-    if (!notionRes.ok) return res.status(notionRes.status).json({ error: data.message });
+    const data = await r.json();
+    if (!r.ok) return res.status(r.status).json({ error: data.message });
     return res.status(200).json({ success: true });
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
+  } catch (e) {
+    return res.status(500).json({ error: e.message });
   }
 }
