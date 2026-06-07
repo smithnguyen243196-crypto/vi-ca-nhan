@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Ví Cá Nhân</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080b12;
+    --surface: #0f1520;
+    --surface2: #161e2e;
+    --border: #1e2d45;
+    --text: #e8f0fe;
+    --muted: #4a6080;
+    --green: #00e5a0;
+    --green-dim: rgba(0,229,160,0.12);
+    --red: #ff4d6d;
+    --red-dim: rgba(255,77,109,0.12);
+    --blue: #4d9fff;
+    --gold: #fbbf24;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Sora', sans-serif; overflow-x: hidden; }
+
+  /* ── scrollbar ── */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* ── layout ── */
+  #app { max-width: 430px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; position: relative; }
+
+  /* ── header ── */
+  .header {
+    padding: 52px 20px 16px;
+    background: linear-gradient(180deg, #0a1628 0%, transparent 100%);
+    position: sticky; top: 0; z-index: 10;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+  .header-row { display: flex; justify-content: space-between; align-items: center; }
+  .app-name { font-size: 13px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); }
+  .settings-btn { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 8px 12px; color: var(--muted); font-size: 16px; cursor: pointer; }
+  .settings-btn:hover { color: var(--text); }
+
+  /* ── balance card ── */
+  .balance-card {
+    margin: 0 16px 20px;
+    background: linear-gradient(135deg, #0d1f35 0%, #0a1628 100%);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .balance-card::before {
+    content: '';
+    position: absolute; top: -60px; right: -60px;
+    width: 180px; height: 180px;
+    background: radial-gradient(circle, rgba(0,229,160,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .balance-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .balance-amount { font-size: 34px; font-weight: 800; letter-spacing: -1px; color: var(--text); font-family: 'JetBrains Mono', monospace; }
+  .balance-amount.positive { color: var(--green); }
+  .balance-amount.negative { color: var(--red); }
+  .balance-month { font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .balance-row { display: flex; gap: 12px; margin-top: 18px; }
+  .mini-stat { flex: 1; background: var(--surface2); border-radius: 12px; padding: 12px; }
+  .mini-label { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+  .mini-val { font-size: 15px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+  .mini-val.inc { color: var(--green); }
+  .mini-val.exp { color: var(--red); }
+
+  /* ── month picker ── */
+  .month-picker { display: flex; align-items: center; gap: 12px; padding: 0 16px 16px; }
+  .month-picker label { font-size: 12px; color: var(--muted); }
+  .month-picker input { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 6px 10px; font-size: 13px; font-family: 'Sora', sans-serif; flex: 1; }
+
+  /* ── tabs ── */
+  .tabs { display: flex; margin: 0 16px 16px; background: var(--surface); border-radius: 12px; padding: 4px; gap: 4px; }
+  .tab { flex: 1; padding: 9px 4px; background: transparent; border: none; border-radius: 8px; color: var(--muted); font-size: 12px; font-weight: 600; cursor: pointer; font-family: 'Sora', sans-serif; transition: all 0.2s; }
+  .tab.active { background: var(--surface2); color: var(--text); }
+
+  /* ── section ── */
+  .section { padding: 0 16px; flex: 1; overflow-y: auto; padding-bottom: 100px; }
+
+  /* ── transaction list ── */
+  .txn-group-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin: 16px 0 8px; }
+  .txn-item {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 14px; margin-bottom: 8px;
+    animation: slideIn 0.3s ease;
+    position: relative;
+  }
+  @keyframes slideIn { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform: translateY(0); } }
+  .txn-icon { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .txn-icon.inc { background: var(--green-dim); }
+  .txn-icon.exp { background: var(--red-dim); }
+  .txn-info { flex: 1; min-width: 0; }
+  .txn-cat { font-size: 14px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .txn-meta { font-size: 11px; color: var(--muted); margin-top: 3px; display: flex; align-items: center; gap: 6px; }
+  .notion-badge { background: rgba(77,159,255,0.15); color: var(--blue); border-radius: 4px; padding: 1px 6px; font-size: 10px; font-weight: 600; }
+  .syncing-badge { background: rgba(251,191,36,0.15); color: var(--gold); border-radius: 4px; padding: 1px 6px; font-size: 10px; font-weight: 600; animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+  .txn-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
+  .txn-amt { font-size: 15px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+  .txn-amt.inc { color: var(--green); }
+  .txn-amt.exp { color: var(--red); }
+  .del-btn { background: transparent; border: none; color: var(--border); font-size: 16px; cursor: pointer; padding: 2px; line-height: 1; }
+  .del-btn:hover { color: var(--red); }
+  .empty { text-align: center; padding: 60px 20px; color: var(--muted); font-size: 14px; line-height: 1.8; }
+
+  /* ── category breakdown ── */
+  .cat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px; margin-bottom: 10px; }
+  .cat-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 12px; }
+  .cat-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .cat-name { font-size: 12px; width: 120px; flex-shrink: 0; }
+  .bar-wrap { flex: 1; height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 3px; transition: width 0.6s cubic-bezier(0.34,1.56,0.64,1); }
+  .cat-val { font-size: 11px; font-weight: 600; font-family: 'JetBrains Mono', monospace; width: 90px; text-align: right; flex-shrink: 0; }
+
+  /* ── settings ── */
+  .settings-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 18px; margin-bottom: 14px; }
+  .settings-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .settings-desc { font-size: 12px; color: var(--muted); line-height: 1.6; margin-bottom: 14px; }
+  .input-label { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .input-field { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; color: var(--text); padding: 11px 14px; font-size: 13px; font-family: 'Sora', sans-serif; margin-bottom: 12px; transition: border-color 0.2s; }
+  .input-field:focus { outline: none; border-color: var(--blue); }
+  .input-field::placeholder { color: var(--muted); }
+  .save-cfg-btn { width: 100%; background: var(--blue); border: none; border-radius: 10px; padding: 12px; color: #fff; font-weight: 700; font-size: 14px; font-family: 'Sora', sans-serif; cursor: pointer; }
+  .status-row { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 10px; margin-top: 10px; font-size: 13px; }
+  .status-ok { background: var(--green-dim); color: var(--green); }
+  .status-err { background: var(--red-dim); color: var(--red); }
+  .status-warn { background: rgba(251,191,36,0.12); color: var(--gold); }
+  .guide-steps { list-style: none; }
+  .guide-steps li { display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; line-height: 1.6; color: var(--muted); }
+  .guide-steps li:last-child { border-bottom: none; }
+  .step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--surface2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--blue); flex-shrink: 0; margin-top: 1px; }
+  code { background: var(--surface2); border-radius: 4px; padding: 1px 6px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--blue); word-break: break-all; }
+
+  /* ── FAB ── */
+  .fab {
+    position: fixed; bottom: 28px; right: 50%; transform: translateX(50%);
+    max-width: 200px; width: calc(100% - 32px);
+    background: linear-gradient(135deg, var(--green), #00b87a);
+    border: none; border-radius: 100px;
+    padding: 16px 32px; color: #000; font-weight: 800; font-size: 15px;
+    font-family: 'Sora', sans-serif; cursor: pointer; letter-spacing: 0.3px;
+    box-shadow: 0 8px 32px rgba(0,229,160,0.35);
+    z-index: 20; transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .fab:active { transform: translateX(50%) scale(0.96); box-shadow: 0 4px 16px rgba(0,229,160,0.25); }
+
+  /* ── bottom sheet ── */
+  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 30; backdrop-filter: blur(6px); display: none; }
+  .overlay.open { display: block; }
+  .sheet {
+    position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 430px;
+    background: var(--surface); border-radius: 24px 24px 0 0;
+    padding: 0 20px 40px; z-index: 31;
+    transform: translateX(-50%) translateY(100%);
+    transition: transform 0.35s cubic-bezier(0.34, 1.2, 0.64, 1);
+  }
+  .sheet.open { transform: translateX(-50%) translateY(0); }
+  .sheet-handle { width: 40px; height: 4px; background: var(--border); border-radius: 2px; margin: 14px auto 20px; }
+  .sheet-title { font-size: 18px; font-weight: 800; margin-bottom: 20px; }
+
+  /* type toggle */
+  .type-toggle { display: flex; gap: 8px; margin-bottom: 16px; }
+  .type-btn { flex: 1; padding: 11px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface2); color: var(--muted); font-weight: 700; font-size: 14px; font-family: 'Sora', sans-serif; cursor: pointer; transition: all 0.2s; }
+  .type-btn.inc.active { background: var(--green-dim); border-color: var(--green); color: var(--green); }
+  .type-btn.exp.active { background: var(--red-dim); border-color: var(--red); color: var(--red); }
+
+  /* amount display */
+  .amount-display { font-size: 32px; font-weight: 800; font-family: 'JetBrains Mono', monospace; text-align: center; padding: 16px; background: var(--surface2); border-radius: 14px; margin-bottom: 16px; min-height: 70px; display: flex; align-items: center; justify-content: center; letter-spacing: -1px; color: var(--text); }
+  .amount-display.has-val.inc { color: var(--green); }
+  .amount-display.has-val.exp { color: var(--red); }
+
+  /* numpad */
+  .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px; }
+  .num-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 16px; font-size: 20px; font-weight: 600; color: var(--text); cursor: pointer; font-family: 'Sora', sans-serif; transition: all 0.1s; }
+  .num-btn:active { background: var(--border); transform: scale(0.96); }
+  .num-btn.del { font-size: 16px; color: var(--muted); }
+  .num-btn.zero { grid-column: span 2; }
+
+  /* cat grid */
+  .cat-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .cat-chip { padding: 8px 14px; background: var(--surface2); border: 1px solid var(--border); border-radius: 100px; font-size: 12px; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+  .cat-chip.active { background: var(--blue); border-color: var(--blue); color: #fff; font-weight: 600; }
+
+  .note-input { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; color: var(--text); padding: 12px 14px; font-size: 14px; font-family: 'Sora', sans-serif; margin-bottom: 16px; }
+  .note-input:focus { outline: none; border-color: var(--blue); }
+  .date-input { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; color: var(--text); padding: 12px 14px; font-size: 14px; font-family: 'Sora', sans-serif; margin-bottom: 20px; }
+
+  .save-btn { width: 100%; background: linear-gradient(135deg, var(--green), #00b87a); border: none; border-radius: 14px; padding: 16px; color: #000; font-weight: 800; font-size: 16px; font-family: 'Sora', sans-serif; cursor: pointer; }
+  .save-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+</style>
+</head>
+<body>
+<div id="app">
+  <!-- header -->
+  <div class="header">
+    <div class="header-row">
+      <div class="app-name">Ví cá nhân</div>
+      <button class="settings-btn" onclick="switchTab('settings')">⚙️</button>
+    </div>
+  </div>
+
+  <!-- balance card -->
+  <div class="balance-card" id="balanceCard">
+    <div class="balance-label">Số dư tháng này</div>
+    <div class="balance-amount" id="balanceAmount">₫0</div>
+    <div class="balance-month" id="balanceMonth"></div>
+    <div class="balance-row">
+      <div class="mini-stat">
+        <div class="mini-label">↑ Thu</div>
+        <div class="mini-val inc" id="totalInc">₫0</div>
+      </div>
+      <div class="mini-stat">
+        <div class="mini-label">↓ Chi</div>
+        <div class="mini-val exp" id="totalExp">₫0</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- month picker -->
+  <div class="month-picker">
+    <label>Tháng</label>
+    <input type="month" id="monthPicker" oninput="render()">
+  </div>
+
+  <!-- tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('txns')" id="tab-txns">Giao dịch</button>
+    <button class="tab" onclick="switchTab('stats')" id="tab-stats">Thống kê</button>
+    <button class="tab" onclick="switchTab('settings')" id="tab-settings">Cài đặt</button>
+  </div>
+
+  <!-- sections -->
+  <div class="section" id="sec-txns"></div>
+  <div class="section" id="sec-stats" style="display:none"></div>
+  <div class="section" id="sec-settings" style="display:none"></div>
+
+  <!-- FAB -->
+  <button class="fab" onclick="openSheet()">+ Thêm giao dịch</button>
+</div>
+
+<!-- overlay -->
+<div class="overlay" id="overlay" onclick="closeSheet()"></div>
+
+<!-- bottom sheet -->
+<div class="sheet" id="sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-title">Giao dịch mới</div>
+
+  <div class="type-toggle">
+    <button class="type-btn exp active" id="btnExp" onclick="setType('expense')">↓ Chi tiêu</button>
+    <button class="type-btn inc" id="btnInc" onclick="setType('income')">↑ Thu nhập</button>
+  </div>
+
+  <div class="amount-display exp" id="amtDisplay">₫0</div>
+
+  <div class="numpad">
+    <button class="num-btn" onclick="numpad('1')">1</button>
+    <button class="num-btn" onclick="numpad('2')">2</button>
+    <button class="num-btn" onclick="numpad('3')">3</button>
+    <button class="num-btn" onclick="numpad('4')">4</button>
+    <button class="num-btn" onclick="numpad('5')">5</button>
+    <button class="num-btn" onclick="numpad('6')">6</button>
+    <button class="num-btn" onclick="numpad('7')">7</button>
+    <button class="num-btn" onclick="numpad('8')">8</button>
+    <button class="num-btn" onclick="numpad('9')">9</button>
+    <button class="num-btn" onclick="numpad('000')">000</button>
+    <button class="num-btn zero" onclick="numpad('0')">0</button>
+    <button class="num-btn del" onclick="numpad('del')">⌫</button>
+  </div>
+
+  <div class="cat-grid" id="catGrid"></div>
+
+  <input class="note-input" id="noteInput" placeholder="Ghi chú (tuỳ chọn)...">
+  <input class="date-input" type="date" id="dateInput">
+
+  <button class="save-btn" id="saveBtn" onclick="saveTxn()">💾 Lưu giao dịch</button>
+</div>
+
+<script>
+// ─── Config ──────────────────────────────────────────────────────────────────
+const NOTION_PROXY = 'https://api.anthropic.com/v1/messages'; // we use Claude as proxy
+let cfg = JSON.parse(localStorage.getItem('notion_cfg') || '{}');
+// cfg = { token, dbId }
+
+// ─── State ────────────────────────────────────────────────────────────────────
+let txns = JSON.parse(localStorage.getItem('txns_v2') || '[]');
+let currentType = 'expense';
+let amountStr = '';
+let selectedCat = '';
+let currentTab = 'txns';
+
+const today = () => new Date().toISOString().slice(0,10);
+const thisMonth = () => new Date().toISOString().slice(0,7);
+
+const CATS = {
+  income:  ['💼 Lương','💰 Kinh doanh','🎁 Thưởng','📈 Đầu tư','🌾 Nông nghiệp','🔄 Khác'],
+  expense: ['🍜 Ăn uống','🏠 Nhà ở','🚗 Di chuyển','🛍️ Mua sắm','💊 Y tế','📚 Học tập','🎮 Giải trí','⛽ Xăng xe','🔄 Khác'],
+};
+
+// ─── Format ───────────────────────────────────────────────────────────────────
+const fmt = n => new Intl.NumberFormat('vi-VN',{style:'currency',currency:'VND'}).format(n);
+const fmtShort = n => {
+  if(n >= 1e9) return (n/1e9).toFixed(1).replace('.0','') + 'tỷ';
+  if(n >= 1e6) return (n/1e6).toFixed(1).replace('.0','') + 'tr';
+  if(n >= 1e3) return (n/1e3).toFixed(0) + 'k';
+  return n.toString();
+};
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+document.getElementById('monthPicker').value = thisMonth();
+document.getElementById('dateInput').value = today();
+selectedCat = CATS.expense[0];
+buildCatGrid();
+render();
+
+// ─── Render ───────────────────────────────────────────────────────────────────
+function render() {
+  const month = document.getElementById('monthPicker').value;
+  const filtered = txns.filter(t => t.date && t.date.startsWith(month));
+  const inc = filtered.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+  const exp = filtered.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+  const bal = inc - exp;
+
+  // balance
+  document.getElementById('totalInc').textContent = fmt(inc);
+  document.getElementById('totalExp').textContent = fmt(exp);
+  const balEl = document.getElementById('balanceAmount');
+  balEl.textContent = fmt(bal);
+  balEl.className = 'balance-amount' + (bal>0?' positive':bal<0?' negative':'');
+
+  const [y,m] = month.split('-');
+  const names = ['','Tháng 1','Tháng 2','Tháng 3','Tháng 4','Tháng 5','Tháng 6','Tháng 7','Tháng 8','Tháng 9','Tháng 10','Tháng 11','Tháng 12'];
+  document.getElementById('balanceMonth').textContent = `${names[+m]} năm ${y}`;
+
+  renderTxns(filtered);
+  renderStats(filtered, inc, exp);
+}
+
+function renderTxns(filtered) {
+  const el = document.getElementById('sec-txns');
+  if(!filtered.length){
+    el.innerHTML = '<div class="empty">📭 Chưa có giao dịch<br><span style="font-size:12px">Bấm <b>+ Thêm giao dịch</b> để bắt đầu</span></div>';
+    return;
+  }
+  // group by date
+  const groups = {};
+  filtered.forEach(t => { (groups[t.date]=groups[t.date]||[]).push(t); });
+  const sortedDates = Object.keys(groups).sort((a,b)=>b.localeCompare(a));
+  el.innerHTML = sortedDates.map(date => {
+    const dayTxns = groups[date].sort((a,b)=>b.id-a.id);
+    const label = formatDateLabel(date);
+    const rows = dayTxns.map(t => `
+      <div class="txn-item">
+        <div class="txn-icon ${t.type==='income'?'inc':'exp'}">${t.type==='income'?'↑':'↓'}</div>
+        <div class="txn-info">
+          <div class="txn-cat">${t.category}</div>
+          <div class="txn-meta">
+            ${t.note ? `<span>${t.note}</span>` : ''}
+            ${t.synced ? '<span class="notion-badge">✓ Notion</span>' : t.syncing ? '<span class="syncing-badge">⏳ Đang sync</span>' : ''}
+          </div>
+        </div>
+        <div class="txn-right">
+          <div class="txn-amt ${t.type==='income'?'inc':'exp'}">${t.type==='income'?'+':'-'}${fmtShort(t.amount)}</div>
+          <button class="del-btn" onclick="deleteTxn(${t.id})">×</button>
+        </div>
+      </div>`).join('');
+    return `<div class="txn-group-label">${label}</div>${rows}`;
+  }).join('');
+}
+
+function formatDateLabel(dateStr) {
+  const d = new Date(dateStr+'T00:00:00');
+  const today = new Date(); today.setHours(0,0,0,0);
+  const diff = Math.round((today - d)/86400000);
+  if(diff===0) return '📅 Hôm nay';
+  if(diff===1) return '📅 Hôm qua';
+  return `📅 ${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;
+}
+
+function renderStats(filtered, inc, exp) {
+  const el = document.getElementById('sec-stats');
+  const catMap = {};
+  filtered.forEach(t => { catMap[t.category] = (catMap[t.category]||0) + t.amount; });
+  const cats = Object.entries(catMap).sort((a,b)=>b[1]-a[1]);
+
+  const expCats = cats.filter(([c]) => CATS.expense.includes(c));
+  const incCats = cats.filter(([c]) => CATS.income.includes(c));
+
+  const renderCatBlock = (title, list, total, color) => {
+    if(!list.length) return '';
+    const bars = list.map(([cat,amt]) => {
+      const pct = total ? Math.round(amt/total*100) : 0;
+      return `<div class="cat-row">
+        <div class="cat-name">${cat}</div>
+        <div class="bar-wrap"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div>
+        <div class="cat-val" style="color:${color}">${fmtShort(amt)}</div>
+      </div>`;
+    }).join('');
+    return `<div class="cat-card"><div class="cat-title">${title}</div>${bars}</div>`;
+  };
+
+  el.innerHTML = renderCatBlock('💸 Chi tiêu theo danh mục', expCats, exp, 'var(--red)')
+               + renderCatBlock('💚 Thu nhập theo danh mục', incCats, inc, 'var(--green)')
+               || '<div class="empty">Chưa có dữ liệu</div>';
+}
+
+// ─── Settings ─────────────────────────────────────────────────────────────────
+function renderSettings() {
+  const el = document.getElementById('sec-settings');
+  const hasToken = cfg.token && cfg.dbId;
+  el.innerHTML = `
+    <div class="settings-card">
+      <div class="settings-title">🔗 Kết nối Notion</div>
+      <div class="settings-desc">Sau khi cài đặt, mỗi giao dịch bạn nhập sẽ <b>tự động lưu vào Notion</b> ngay lập tức.</div>
+
+      <div class="input-label">Notion Integration Token</div>
+      <input class="input-field" id="cfgToken" type="password" placeholder="secret_xxxxxxxxxxxx" value="${cfg.token||''}">
+
+      <div class="input-label">Database ID</div>
+      <input class="input-field" id="cfgDb" placeholder="32 ký tự từ URL database Notion" value="${cfg.dbId||''}">
+
+      <button class="save-cfg-btn" onclick="saveCfg()">💾 Lưu cài đặt</button>
+      ${hasToken ? '<div class="status-row status-ok">✅ Đã kết nối Notion</div>' : '<div class="status-row status-warn">⚠️ Chưa cài đặt — giao dịch chỉ lưu trên máy</div>'}
+    </div>
+
+    <div class="settings-card">
+      <div class="settings-title">📋 Hướng dẫn lấy Token & Database ID</div>
+      <ul class="guide-steps">
+        <li><span class="step-num">1</span><span>Vào <code>notion.so/my-integrations</code> → Tạo integration mới → Copy <b>Internal Integration Token</b></span></li>
+        <li><span class="step-num">2</span><span>Tạo database trong Notion với các cột: <code>Name</code>, <code>Loại</code>, <code>Số tiền</code>, <code>Danh mục</code>, <code>Ngày</code>, <code>Ghi chú</code></span></li>
+        <li><span class="step-num">3</span><span>Vào database → <b>Share</b> → Invite integration vừa tạo</span></li>
+        <li><span class="step-num">4</span><span>Copy Database ID từ URL: <code>notion.so/.../[<b>database-id</b>]?v=...</code></span></li>
+      </ul>
+    </div>
+
+    <div class="settings-card">
+      <div class="settings-title">🗄️ Dữ liệu</div>
+      <div class="settings-desc">Tổng: <b>${txns.length}</b> giao dịch &nbsp;|&nbsp; Đã sync Notion: <b>${txns.filter(t=>t.synced).length}</b></div>
+      <button onclick="exportData()" style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 16px;color:var(--text);font-size:13px;font-family:'Sora',sans-serif;cursor:pointer;width:100%;margin-bottom:8px">📤 Xuất JSON</button>
+      <button onclick="clearData()" style="background:var(--red-dim);border:1px solid var(--red);border-radius:10px;padding:10px 16px;color:var(--red);font-size:13px;font-family:'Sora',sans-serif;cursor:pointer;width:100%">🗑️ Xoá tất cả dữ liệu</button>
+    </div>`;
+}
+
+function saveCfg() {
+  cfg = { token: document.getElementById('cfgToken').value.trim(), dbId: document.getElementById('cfgDb').value.trim() };
+  localStorage.setItem('notion_cfg', JSON.stringify(cfg));
+  renderSettings();
+  showToast('✅ Đã lưu cài đặt Notion!');
+}
+
+// ─── Tab switch ───────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  currentTab = tab;
+  ['txns','stats','settings'].forEach(t => {
+    document.getElementById('sec-'+t).style.display = t===tab?'block':'none';
+    document.getElementById('tab-'+t).classList.toggle('active', t===tab);
+  });
+  if(tab==='settings') renderSettings();
+}
+
+// ─── Sheet ────────────────────────────────────────────────────────────────────
+function openSheet() {
+  document.getElementById('overlay').classList.add('open');
+  document.getElementById('sheet').classList.add('open');
+  amountStr = '';
+  updateAmtDisplay();
+}
+function closeSheet() {
+  document.getElementById('overlay').classList.remove('open');
+  document.getElementById('sheet').classList.remove('open');
+}
+
+// ─── Numpad ───────────────────────────────────────────────────────────────────
+function numpad(v) {
+  if(v==='del') { amountStr = amountStr.slice(0,-1); }
+  else if(amountStr.length < 12) { amountStr += v; }
+  updateAmtDisplay();
+}
+function updateAmtDisplay() {
+  const el = document.getElementById('amtDisplay');
+  const val = parseInt(amountStr||'0')||0;
+  el.textContent = fmt(val);
+  el.className = 'amount-display ' + currentType + (val>0?' has-val':'');
+}
+
+// ─── Type / Category ─────────────────────────────────────────────────────────
+function setType(t) {
+  currentType = t;
+  document.getElementById('btnExp').classList.toggle('active', t==='expense');
+  document.getElementById('btnInc').classList.toggle('active', t==='income');
+  document.getElementById('amtDisplay').className = 'amount-display '+t+(parseInt(amountStr||0)>0?' has-val':'');
+  selectedCat = CATS[t][0];
+  buildCatGrid();
+}
+function buildCatGrid() {
+  document.getElementById('catGrid').innerHTML = CATS[currentType].map(c =>
+    `<div class="cat-chip${c===selectedCat?' active':''}" onclick="selectCat('${c}')">${c}</div>`
+  ).join('');
+}
+function selectCat(c) {
+  selectedCat = c;
+  buildCatGrid();
+}
+
+// ─── Save transaction ─────────────────────────────────────────────────────────
+async function saveTxn() {
+  const amount = parseInt(amountStr||'0');
+  if(!amount) { showToast('⚠️ Vui lòng nhập số tiền'); return; }
+  const btn = document.getElementById('saveBtn');
+  btn.disabled = true; btn.textContent = '⏳ Đang lưu...';
+
+  const txn = {
+    id: Date.now(),
+    type: currentType,
+    amount,
+    category: selectedCat,
+    note: document.getElementById('noteInput').value.trim(),
+    date: document.getElementById('dateInput').value || today(),
+    synced: false,
+    syncing: false,
+  };
+
+  txns.unshift(txn);
+  saveTxns();
+  render();
+  closeSheet();
+  btn.disabled = false; btn.textContent = '💾 Lưu giao dịch';
+  amountStr = '';
+  document.getElementById('noteInput').value = '';
+
+  showToast('✅ Đã lưu giao dịch!');
+  syncToNotion(txn);
+}
+
+// ─── Notion API ───────────────────────────────────────────────────────────────
+async function syncToNotion(txn) {
+  if(!cfg.token || !cfg.dbId) return;
+
+  // mark syncing
+  const idx = txns.findIndex(t=>t.id===txn.id);
+  if(idx!==-1){ txns[idx].syncing = true; saveTxns(); render(); }
+
+  try {
+    const res = await fetch(`https://api.notion.com/v1/pages`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${cfg.token}`,
+        'Notion-Version': '2022-06-28',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        parent: { database_id: cfg.dbId },
+        properties: {
+          'Name': { title: [{ text: { content: txn.note || txn.category } }] },
+          'Loại': { select: { name: txn.type==='income'?'Thu':'Chi' } },
+          'Số tiền': { number: txn.amount },
+          'Danh mục': { rich_text: [{ text: { content: txn.category } }] },
+          'Ngày': { date: { start: txn.date } },
+          'Ghi chú': { rich_text: [{ text: { content: txn.note||'' } }] },
+        }
+      })
+    });
+
+    const data = await res.json();
+    const ok = res.ok && data.id;
+    const i = txns.findIndex(t=>t.id===txn.id);
+    if(i!==-1){ txns[i].syncing=false; txns[i].synced=ok; saveTxns(); render(); }
+    if(ok) showToast('📒 Đã lưu vào Notion!');
+    else showToast('⚠️ Lỗi Notion: '+( data.message||'Kiểm tra lại token/DB ID'));
+  } catch(e) {
+    const i = txns.findIndex(t=>t.id===txn.id);
+    if(i!==-1){ txns[i].syncing=false; saveTxns(); render(); }
+    showToast('❌ Không kết nối được Notion');
+  }
+}
+
+// ─── Delete ───────────────────────────────────────────────────────────────────
+function deleteTxn(id) {
+  txns = txns.filter(t=>t.id!==id);
+  saveTxns(); render();
+}
+
+// ─── Persist ─────────────────────────────────────────────────────────────────
+function saveTxns() { localStorage.setItem('txns_v2', JSON.stringify(txns)); }
+
+// ─── Export / Clear ──────────────────────────────────────────────────────────
+function exportData() {
+  const blob = new Blob([JSON.stringify(txns,null,2)],{type:'application/json'});
+  const a = document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download = `vi-ca-nhan-${today()}.json`; a.click();
+}
+function clearData() {
+  if(!confirm('Xoá tất cả dữ liệu? Không thể hoàn tác!')) return;
+  txns = []; saveTxns(); render(); renderSettings();
+  showToast('🗑️ Đã xoá tất cả dữ liệu');
+}
+
+// ─── Toast ────────────────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.createElement('div');
+  Object.assign(t.style, {
+    position:'fixed', bottom:'90px', left:'50%', transform:'translateX(-50%)',
+    background:'#1e2d45', border:'1px solid #2a4060', color:'#e8f0fe',
+    padding:'10px 20px', borderRadius:'100px', fontSize:'13px', fontWeight:'600',
+    fontFamily:"'Sora',sans-serif", zIndex:'99', whiteSpace:'nowrap',
+    boxShadow:'0 4px 20px rgba(0,0,0,0.4)',
+    animation:'fadeIn 0.2s ease',
+  });
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(), 2500);
+}
+</script>
+</body>
+</html>
