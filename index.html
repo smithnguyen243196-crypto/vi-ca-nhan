@@ -127,8 +127,10 @@
   .overlay.open{display:block;}
   .sheet{position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(100%);width:100%;max-width:430px;background:var(--surface);border-radius:24px 24px 0 0;padding:0 20px 40px;z-index:31;transition:transform 0.35s cubic-bezier(0.34,1.2,0.64,1);max-height:92vh;overflow-y:auto;}
   .sheet.open{transform:translateX(-50%) translateY(0);}
-  .sheet-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:14px auto 18px;}
-  .sheet-title{font-size:18px;font-weight:800;margin-bottom:18px;}
+  .sheet-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:14px auto 0;}
+  .sheet-header{display:flex;justify-content:space-between;align-items:center;padding:16px 0 18px;}
+  .sheet-title{font-size:18px;font-weight:800;}
+  .sheet-close{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:8px 16px;color:var(--muted);font-size:13px;font-weight:600;font-family:'Sora',sans-serif;cursor:pointer;}
   .type-toggle{display:flex;gap:8px;margin-bottom:14px;}
   .type-btn{flex:1;padding:10px;border:1px solid var(--border);border-radius:12px;background:var(--surface2);color:var(--muted);font-weight:700;font-size:13px;font-family:'Sora',sans-serif;cursor:pointer;transition:all 0.2s;}
   .type-btn.inc.active{background:var(--green-dim);border-color:var(--green);color:var(--green);}
@@ -215,7 +217,10 @@
 
 <div class="sheet" id="sheet">
   <div class="sheet-handle"></div>
-  <div class="sheet-title">Giao dịch mới</div>
+  <div class="sheet-header">
+    <div class="sheet-title">Giao dịch mới</div>
+    <button class="sheet-close" onclick="closeSheet()">🏠 Quay về</button>
+  </div>
   <div class="type-toggle">
     <button class="type-btn exp active" id="btnExp" onclick="setType('expense')">↓ Chi tiêu</button>
     <button class="type-btn inc" id="btnInc" onclick="setType('income')">↑ Thu nhập</button>
