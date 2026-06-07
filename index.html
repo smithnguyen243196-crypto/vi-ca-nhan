@@ -280,18 +280,20 @@ const fmtShort = n => {
 };
 
 // ── init ──
-document.getElementById('monthPicker').value = thisMonth();
-document.getElementById('dateInput').value = today();
-selectedCat = CATS.expense[0];
-buildCatGrid();
-setSyncDot('loading');
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('monthPicker').value = thisMonth();
+  document.getElementById('dateInput').value = today();
+  selectedCat = CATS.expense[0];
+  buildCatGrid();
+  setSyncDot('loading');
 
-if(cfg.token && cfg.dbId) {
-  loadFromNotion();
-} else {
-  setSyncDot('err');
-  render();
-}
+  if(cfg.token && cfg.dbId) {
+    loadFromNotion();
+  } else {
+    setSyncDot('err');
+    render();
+  }
+});
 
 // ── sync dot ──
 function setSyncDot(state) {
