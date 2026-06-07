@@ -252,74 +252,35 @@
   <button class="save-btn" id="saveBtn" onclick="saveTxn()">💾 Lưu giao dịch</button>
 </div>
 
-<script>
-// ── state ──
-let cfg = JSON.parse(localStorage.getItem('notion_cfg') || '{}');
-let txns = [];
-let currentType = 'expense';
-let currentWallet = 'bank';
-let amountStr = '';
-let selectedCat = '';
-let currentTab = 'txns';
-let isLoading = false;
-
-const today = () => new Date().toISOString().slice(0,10);
-const thisMonth = () => new Date().toISOString().slice(0,7);
-
-const CATS = {
+<script>  return y+'-'+m+'-'+day;
+};
+  return y+'-'+m;
+};
   income:  ['💼 Lương','💰 Kinh doanh','🎁 Thưởng','📈 Đầu tư','🌾 Nông nghiệp','🔄 Khác'],
   expense: ['🍜 Ăn uống','💑 Đưa vợ','🏠 Nhà ở','🚗 Di chuyển','🛍️ Mua sắm','💊 Y tế','📚 Học tập','🎮 Giải trí','⛽ Xăng xe','🔄 Khác'],
 };
-
-const fmt = n => new Intl.NumberFormat('vi-VN',{style:'currency',currency:'VND'}).format(n);
-const fmtShort = n => {
   if(n>=1e9) return (n/1e9).toFixed(1).replace('.0','')+'tỷ';
   if(n>=1e6) return (n/1e6).toFixed(1).replace('.0','')+'tr';
   if(n>=1e3) return (n/1e3).toFixed(0)+'k';
   return n.toString();
 };
-
-// ── init ──
-document.addEventListener('DOMContentLoaded', function() {
-  document.getElementById('monthPicker').value = thisMonth();
-  document.getElementById('dateInput').value = today();
-  selectedCat = CATS.expense[0];
-  buildCatGrid();
-  setSyncDot('loading');
-
-  if(cfg.token && cfg.dbId) {
-    loadFromNotion();
-  } else {
-    setSyncDot('err');
-    render();
-  }
-});
-
-// ── sync dot ──
 function setSyncDot(state) {
-  const d = document.getElementById('syncDot');
   d.className = 'sync-indicator ' + state;
   d.title = state==='ok'?'Đã đồng bộ':state==='loading'?'Đang tải...':'Chưa kết nối Notion';
 }
-
-// ── load from Notion ──
 async function loadFromNotion() {
   if(!cfg.token || !cfg.dbId) { setSyncDot('err'); render(); return; }
   setSyncDot('loading');
   isLoading = true;
   showSkeleton();
-
   try {
-    const res = await fetch('/api/notion-read', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token: cfg.token, dbId: cfg.dbId }),
     });
     if(!res.ok) {
-      const err = await res.text();
       throw new Error('Lỗi server');
     }
-    const data = await res.json();
     if(data.error) throw new Error(data.error);
     txns = data.txns || [];
     setSyncDot('ok');
@@ -333,29 +294,15 @@ async function loadFromNotion() {
   isLoading = false;
 }
 }
-
-// ── render ──
 function render() {
-  const month = document.getElementById('monthPicker').value;
-  const filtered = txns.filter(t => t.date && t.date.startsWith(month));
-  const inc = filtered.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
-  const exp = filtered.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
-  const bal = inc - exp;
-
   document.getElementById('totalInc').textContent = fmt(inc);
   document.getElementById('totalExp').textContent = fmt(exp);
-  const balEl = document.getElementById('balanceAmount');
   balEl.textContent = fmt(bal);
   balEl.className = 'balance-amount'+(bal>0?' positive':bal<0?' negative':'');
-
-  const [y,m] = month.split('-');
-  const names=['','Tháng 1','Tháng 2','Tháng 3','Tháng 4','Tháng 5','Tháng 6','Tháng 7','Tháng 8','Tháng 9','Tháng 10','Tháng 11','Tháng 12'];
   document.getElementById('balanceMonth').textContent = `${names[+m]} năm ${y}`;
-
   renderTxns(filtered);
   renderStats(filtered, inc, exp);
 }
-
 function showSkeleton() {
   document.getElementById('sec-txns').innerHTML = [1,2,3,4].map(()=>`
     <div class="skeleton">
@@ -363,22 +310,14 @@ function showSkeleton() {
       <div class="skel-line short"></div>
     </div>`).join('');
 }
-
 function renderTxns(filtered) {
   if(isLoading) return;
-  const el = document.getElementById('sec-txns');
   if(!filtered.length){
     el.innerHTML = '<div class="empty">📭 Chưa có giao dịch<br><span style="font-size:12px">Bấm <b>➕ Thêm</b> để bắt đầu</span></div>';
     return;
   }
-  const groups = {};
   filtered.forEach(t => { (groups[t.date]=groups[t.date]||[]).push(t); });
-  const sortedDates = Object.keys(groups).sort((a,b)=>b.localeCompare(a));
   el.innerHTML = sortedDates.map(date => {
-    const dayTxns = groups[date];
-    const label = formatDateLabel(date);
-    const rows = dayTxns.map(t => {
-      const wBadge = t.wallet==='cash'
         ? '<span class="wallet-badge wallet-cash">💵 Tiền mặt</span>'
         : '<span class="wallet-badge wallet-bank">🏦 TK</span>';
       return `
@@ -401,34 +340,16 @@ function renderTxns(filtered) {
     return `<div class="txn-group-label">${label}</div>${rows}`;
   }).join('');
 }
-
 function formatDateLabel(dateStr) {
-  const d = new Date(dateStr+'T00:00:00');
-  const td = new Date(); td.setHours(0,0,0,0);
-  const diff = Math.round((td-d)/86400000);
   if(diff===0) return '📅 Hôm nay';
   if(diff===1) return '📅 Hôm qua';
   return `📅 ${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;
 }
-
 function renderStats(filtered, inc, exp) {
-  const el = document.getElementById('sec-stats');
-  const catMap = {};
   filtered.forEach(t => { catMap[t.category]=(catMap[t.category]||0)+t.amount; });
-  const cats = Object.entries(catMap).sort((a,b)=>b[1]-a[1]);
-  const expCats = cats.filter(([c])=>CATS.expense.includes(c));
-  const incCats = cats.filter(([c])=>CATS.income.includes(c));
-
-  const bankExp = filtered.filter(t=>t.type==='expense'&&t.wallet!=='cash').reduce((s,t)=>s+t.amount,0);
-  const cashExp = filtered.filter(t=>t.type==='expense'&&t.wallet==='cash').reduce((s,t)=>s+t.amount,0);
-  const bankInc = filtered.filter(t=>t.type==='income'&&t.wallet!=='cash').reduce((s,t)=>s+t.amount,0);
-  const cashInc = filtered.filter(t=>t.type==='income'&&t.wallet==='cash').reduce((s,t)=>s+t.amount,0);
-
-  const renderCatBlock = (title, list, total, color) => {
     if(!list.length) return '';
     return `<div class="cat-card"><div class="cat-title">${title}</div>${
       list.map(([cat,amt])=>{
-        const pct = total?Math.round(amt/total*100):0;
         return `<div class="cat-row">
           <div class="cat-name">${cat}</div>
           <div class="bar-wrap"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div>
@@ -437,7 +358,6 @@ function renderStats(filtered, inc, exp) {
       }).join('')
     }</div>`;
   };
-
   el.innerHTML = `
     <div class="wallet-card">
       <div class="cat-title">💳 Theo hình thức thanh toán</div>
@@ -450,10 +370,7 @@ function renderStats(filtered, inc, exp) {
     ${renderCatBlock('💚 Thu nhập theo danh mục',incCats,inc,'var(--green)')}
     ${!expCats.length&&!incCats.length?'<div class="empty">Chưa có dữ liệu</div>':''}`;
 }
-
 function renderSettings() {
-  const el = document.getElementById('sec-settings');
-  const hasToken = cfg.token && cfg.dbId;
   el.innerHTML = `
     <div class="settings-card">
       <div class="settings-title">🔗 Kết nối Notion</div>
@@ -480,7 +397,6 @@ function renderSettings() {
       <button onclick="loadFromNotion()" style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 16px;color:var(--text);font-size:13px;font-family:'Sora',sans-serif;cursor:pointer;width:100%">🔄 Tải lại từ Notion</button>
     </div>`;
 }
-
 function saveCfg() {
   cfg = { token: document.getElementById('cfgToken').value.trim(), dbId: document.getElementById('cfgDb').value.trim() };
   localStorage.setItem('notion_cfg', JSON.stringify(cfg));
@@ -488,8 +404,6 @@ function saveCfg() {
   showToast('✅ Đã lưu! Đang kết nối...');
   loadFromNotion();
 }
-
-// ── tab ──
 function switchTab(tab) {
   currentTab = tab;
   ['txns','stats','settings'].forEach(t => {
@@ -497,12 +411,9 @@ function switchTab(tab) {
     document.getElementById('tab-'+t).classList.toggle('active', t===tab);
   });
   document.querySelectorAll('.nav-btn:not(.home-btn)').forEach(b=>b.classList.remove('active'));
-  const n = document.getElementById('nav-'+tab);
   if(n) n.classList.add('active');
   if(tab==='settings') renderSettings();
 }
-
-// ── sheet ──
 function openSheet() {
   document.getElementById('overlay').classList.add('open');
   document.getElementById('sheet').classList.add('open');
@@ -512,21 +423,15 @@ function closeSheet() {
   document.getElementById('overlay').classList.remove('open');
   document.getElementById('sheet').classList.remove('open');
 }
-
-// ── numpad ──
 function numpad(v) {
   if(v==='del') amountStr=amountStr.slice(0,-1);
   else if(amountStr.length<12) amountStr+=v;
   updateAmtDisplay();
 }
 function updateAmtDisplay() {
-  const el = document.getElementById('amtDisplay');
-  const val = parseInt(amountStr||'0')||0;
   el.textContent = fmt(val);
   el.className = 'amount-display '+currentType+(val>0?' has-val':'');
 }
-
-// ── type/wallet/cat ──
 function setType(t) {
   currentType=t;
   document.getElementById('btnExp').classList.toggle('active',t==='expense');
@@ -545,15 +450,9 @@ function buildCatGrid() {
   ).join('');
 }
 function selectCat(c) { selectedCat=c; buildCatGrid(); }
-
-// ── save ──
 async function saveTxn() {
-  const amount = parseInt(amountStr||'0');
   if(!amount) { showToast('⚠️ Vui lòng nhập số tiền'); return; }
-  const btn = document.getElementById('saveBtn');
   btn.disabled=true; btn.textContent='⏳ Đang lưu...';
-
-  const txn = {
     id: Date.now(),
     type: currentType,
     wallet: currentWallet,
@@ -563,19 +462,14 @@ async function saveTxn() {
     date: document.getElementById('dateInput').value || today(),
     synced: false, syncing: true,
   };
-
-  // optimistic update
   txns.unshift(txn);
   render();
   closeSheet();
   btn.disabled=false; btn.textContent='💾 Lưu giao dịch';
   amountStr='';
   document.getElementById('noteInput').value='';
-
-  // push to Notion
   if(cfg.token && cfg.dbId) {
     try {
-      const payload = {
         'Name':     { title:[{text:{content: txn.note||txn.category}}] },
         'Loại':     { select:{name: txn.type==='income'?'Thu':'Chi'} },
         'Số tiền':  { number: txn.amount },
@@ -584,13 +478,10 @@ async function saveTxn() {
         'Ngày':     { date:{start: txn.date} },
         'Ghi chú':  { rich_text:[{text:{content: txn.note||''}}] },
       };
-      const res = await fetch('/api/notion', {
         method:'POST',
         headers:{'Content-Type':'application/json'},
         body: JSON.stringify({token:cfg.token, dbId:cfg.dbId, payload}),
       });
-      const data = await res.json();
-      const i = txns.findIndex(t=>t.id===txn.id);
       if(i!==-1) {
         txns[i].syncing=false;
         txns[i].synced=res.ok&&data.success;
@@ -600,18 +491,14 @@ async function saveTxn() {
       if(res.ok) showToast('📒 Đã lưu vào Notion!');
       else showToast('⚠️ Lỗi: '+(data.error||'Kiểm tra cài đặt'));
     } catch(e) {
-      const i=txns.findIndex(t=>t.id===txn.id);
       if(i!==-1){txns[i].syncing=false; render();}
       showToast('❌ Không kết nối được Notion');
     }
   } else {
     showToast('✅ Đã lưu! (Chưa kết nối Notion)');
-    const i=txns.findIndex(t=>t.id===txn.id);
     if(i!==-1){txns[i].syncing=false; render();}
   }
 }
-
-// ── delete ──
 async function deleteTxn(localId, notionId) {
   txns = txns.filter(t=>String(t.id)!==String(localId));
   render();
@@ -628,9 +515,7 @@ async function deleteTxn(localId, notionId) {
     }
   }
 }
-
 function showToast(msg) {
-  const t=document.createElement('div');
   Object.assign(t.style,{
     position:'fixed',bottom:'90px',left:'50%',transform:'translateX(-50%)',
     background:'#1e2d45',border:'1px solid #2a4060',color:'#e8f0fe',
@@ -642,6 +527,134 @@ function showToast(msg) {
   document.body.appendChild(t);
   setTimeout(()=>t.remove(),2800);
 }
-</script>
+
+
+// ── state ──
+let cfg = JSON.parse(localStorage.getItem('notion_cfg') || '{}');
+let txns = [];
+let currentType = 'expense';
+let currentWallet = 'bank';
+let amountStr = '';
+let selectedCat = '';
+let currentTab = 'txns';
+let isLoading = false;
+
+const today = () => {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+const thisMonth = () => {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+
+const CATS = {
+
+const fmt = n => new Intl.NumberFormat('vi-VN',{style:'currency',currency:'VND'}).format(n);
+const fmtShort = n => {
+
+// ── init ──
+
+// ── sync dot ──
+  const d = document.getElementById('syncDot');
+
+// ── load from Notion ──
+
+    const res = await fetch('/api/notion-read', {
+      const err = await res.text();
+    const data = await res.json();
+
+// ── render ──
+  const month = document.getElementById('monthPicker').value;
+  const filtered = txns.filter(t => t.date && t.date.startsWith(month));
+  const inc = filtered.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+  const exp = filtered.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+  const bal = inc - exp;
+
+  const balEl = document.getElementById('balanceAmount');
+
+  const [y,m] = month.split('-');
+  const names=['','Tháng 1','Tháng 2','Tháng 3','Tháng 4','Tháng 5','Tháng 6','Tháng 7','Tháng 8','Tháng 9','Tháng 10','Tháng 11','Tháng 12'];
+
+
+
+  const el = document.getElementById('sec-txns');
+  const groups = {};
+  const sortedDates = Object.keys(groups).sort((a,b)=>b.localeCompare(a));
+    const dayTxns = groups[date];
+    const label = formatDateLabel(date);
+    const rows = dayTxns.map(t => {
+      const wBadge = t.wallet==='cash'
+
+  const d = new Date(dateStr+'T00:00:00');
+  const td = new Date(); td.setHours(0,0,0,0);
+  const diff = Math.round((td-d)/86400000);
+
+  const el = document.getElementById('sec-stats');
+  const catMap = {};
+  const cats = Object.entries(catMap).sort((a,b)=>b[1]-a[1]);
+  const expCats = cats.filter(([c])=>CATS.expense.includes(c));
+  const incCats = cats.filter(([c])=>CATS.income.includes(c));
+
+  const bankExp = filtered.filter(t=>t.type==='expense'&&t.wallet!=='cash').reduce((s,t)=>s+t.amount,0);
+  const cashExp = filtered.filter(t=>t.type==='expense'&&t.wallet==='cash').reduce((s,t)=>s+t.amount,0);
+  const bankInc = filtered.filter(t=>t.type==='income'&&t.wallet!=='cash').reduce((s,t)=>s+t.amount,0);
+  const cashInc = filtered.filter(t=>t.type==='income'&&t.wallet==='cash').reduce((s,t)=>s+t.amount,0);
+
+  const renderCatBlock = (title, list, total, color) => {
+        const pct = total?Math.round(amt/total*100):0;
+
+
+  const el = document.getElementById('sec-settings');
+  const hasToken = cfg.token && cfg.dbId;
+
+
+// ── tab ──
+  const n = document.getElementById('nav-'+tab);
+
+// ── sheet ──
+
+// ── numpad ──
+  const el = document.getElementById('amtDisplay');
+  const val = parseInt(amountStr||'0')||0;
+
+// ── type/wallet/cat ──
+
+// ── save ──
+  const amount = parseInt(amountStr||'0');
+  const btn = document.getElementById('saveBtn');
+
+  const txn = {
+
+  // optimistic update
+
+  // push to Notion
+      const payload = {
+      const res = await fetch('/api/notion', {
+      const data = await res.json();
+      const i = txns.findIndex(t=>t.id===txn.id);
+      const i=txns.findIndex(t=>t.id===txn.id);
+    const i=txns.findIndex(t=>t.id===txn.id);
+
+// ── delete ──
+
+  const t=document.createElement('div');
+
+
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('monthPicker').value = thisMonth();
+  document.getElementById('dateInput').value = today();
+  selectedCat = CATS.expense[0];
+  buildCatGrid();
+  setSyncDot('loading');
+
+  if(cfg.token && cfg.dbId) {
+    loadFromNotion();
+  } else {
+    setSyncDot('err');
+    render();
+  }
+});</script>
 </body>
 </html>
