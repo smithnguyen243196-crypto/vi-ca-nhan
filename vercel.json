@@ -1,14 +1,11 @@
 {
   "version": 2,
-  "builds": [{ "src": "index.html", "use": "@vercel/static" }],
-  "routes": [{ "src": "/(.*)", "dest": "/index.html" }],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        { "key": "Access-Control-Allow-Origin", "value": "*" },
-        { "key": "Cache-Control", "value": "no-store" }
-      ]
-    }
+  "builds": [
+    { "src": "index.html", "use": "@vercel/static" },
+    { "src": "api/notion.js", "use": "@vercel/node" }
+  ],
+  "routes": [
+    { "src": "/api/notion", "dest": "/api/notion.js" },
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
