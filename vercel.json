@@ -2,9 +2,11 @@
   "version": 2,
   "builds": [
     { "src": "index.html", "use": "@vercel/static" },
-    { "src": "api/notion.js", "use": "@vercel/node" }
+    { "src": "api/*.js", "use": "@vercel/node" }
   ],
   "routes": [
+    { "src": "/api/notion-read", "dest": "/api/notion-read.js" },
+    { "src": "/api/notion-delete", "dest": "/api/notion-delete.js" },
     { "src": "/api/notion", "dest": "/api/notion.js" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
