@@ -33,6 +33,7 @@ export default async function handler(req, res) {
         wallet: p['Ví']?.select?.name === 'Tiền mặt' ? 'cash' : 'bank',
         amount: p['Số tiền']?.number || 0,
         category: p['Danh mục']?.rich_text?.[0]?.plain_text || '',
+        person: p['Người']?.rich_text?.[0]?.plain_text || '',
         note: p['Name']?.title?.[0]?.plain_text || '',
         date: p['Ngày']?.date?.start || '',
         synced: true,
